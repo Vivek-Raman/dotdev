@@ -1,19 +1,21 @@
 {
-	"name": "@cassidoo/blahg",
-	"version": "0.0.5",
-	"private": true,
-	"scripts": {
+  "name": "@cassidoo/blahg",
+  "version": "0.0.5",
+  "private": true,
+  "scripts": {
     "dev": "astro dev",
-		"start": "astro dev",
+    "start": "astro dev",
     "build": "astro build",
-		"preview": "astro preview",
-		"astro": "astro"
-	},
-	"devDependencies": {
-		"@astrojs/rss": "^4.0.10",
-		"@astrojs/sitemap": "^3.2.1",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@astrojs/rss": "^4.0.10",
+    "@astrojs/sitemap": "^3.2.1",
     "astro": "^5.7.13",
-		"prettier": "^3.3.3",
+    "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1"
-	}
+  }
 }
