@@ -3,7 +3,7 @@ export default function getTags(posts) {
   const allTags = posts
     .map((post) => {
       const postTags = post.data.tags;
-      let allTags = [];
+      const allTags = [];
 
       if (postTags?.length > 0) {
         postTags.forEach((tag) => {
