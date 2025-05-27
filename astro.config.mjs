@@ -18,6 +18,7 @@ export default defineConfig({
           'cs',
           'gcp-light', 'gcp-dark',
           'java-light', 'java-dark',
+          'kubernetes',
           'nodejs-light', 'nodejs-dark',
           // 'linux-light', 'linux-dark',
           'react-light', 'react-dark',
