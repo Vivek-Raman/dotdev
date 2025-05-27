@@ -12,10 +12,15 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@astrojs/mdx": "^4.3.0",
     "@astrojs/rss": "^4.0.10",
     "@astrojs/sitemap": "^3.2.1",
     "astro": "^5.7.13",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1"
+  },
+  "dependencies": {
+    "@iconify-json/skill-icons": "^1.2.0",
+    "astro-icon": "^1.1.5"
   }
 }

@@ -17,7 +17,7 @@ export const GET = () =>
     site: import.meta.env.SITE,
     items: posts.map((post) => {
       return {
-        link: `/post/${post.data.slug}`,
+        link: `/posts/${post.data.slug}`,
         title: post.data.title,
         pubDate: post.data.added,
         description: post.data.description,
@@ -25,5 +25,5 @@ export const GET = () =>
         customData: `<updated>${post.data.updated ? post.data.updated : ""}</updated>`,
       };
     }),
-    stylesheet: "/rss-styles.xsl",
+    // stylesheet: "/rss-styles.xsl",
   });

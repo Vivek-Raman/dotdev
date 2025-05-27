@@ -1,0 +1,22 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import ColorScript from "../../components/ColorScript.astro";
+import About from "../../../content/about/about-me.mdx";
+
+import { SITE_TITLE, SITE_DESCRIPTION } from "../../config";
+---
+
+<!doctype html>
+<html lang="en-us">
+  <BaseHead title={`About - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+  <body>
+    <Header />
+    <main>
+      <About />
+    </main>
+    <Footer />
+    <ColorScript />
+  </body>
+</html>

@@ -1,0 +1,42 @@
+---
+// components/TechWithIcon.astro
+import { Icon } from "astro-icon/components";
+
+const { name, followColorScheme } = Astro.props;
+---
+
+<span class="tech-logo">
+  {
+    !followColorScheme ? (
+      <Icon name={`skill-icons:${name.toLowerCase()}`} class="inline-icon" />
+    ) : (
+      <>
+        <Icon name={`skill-icons:${name.toLowerCase()}-dark`} class="inline-icon icon-dark" />
+        <Icon name={`skill-icons:${name.toLowerCase()}-light`} class="inline-icon icon-light" />
+      </>
+    )
+  }
+</span>
+
+<style>
+  .inline-icon {
+    height: 1.3em;
+    width: auto;
+    vertical-align: middle;
+    display: inline;
+  }
+  .icon-light {
+    display: none;
+  }
+  .icon-dark {
+    display: inline;
+  }
+  @media (prefers-color-scheme: light) {
+    .icon-dark {
+      display: none;
+    }
+    .icon-light {
+      display: inline;
+    }
+  }
+</style>

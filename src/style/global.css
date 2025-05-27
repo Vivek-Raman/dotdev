@@ -265,3 +265,7 @@ ul li time {
     padding: 0;
   }
 }
+
+blockquote {
+  padding-inline: 1rem;
+}
