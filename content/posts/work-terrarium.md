@@ -28,11 +28,14 @@ Once the player scopes out a suitable area, they are prompted to tap on the grou
 While they are outside, the player only sees the doorway and whatever is visible through it.
 However, once they enter, they can see everything inside the alternate space, including anything that's behind the doorway itself.
 We ended up not drawing anything behind the doorway, and stuck to just a room.
+
+![](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxauosELkYM3ihGvD1WTbA0f8y6Pa74mSsVwpg)
+
 One cool thing I experimented with was using transparent walls and ceiling for the room, and the main motivation was to reduce the amount of interior design needed.
 It ended up working great, really selling this idea of a greenhouse, since you were able to see the rest of your environment through the walls while inside your greenhouse.
 If you're interested in learning more about how to do this, check out this tutorial that I based my portal behaviour off of.
 
-# Plant Placement in AR
+## Plant Placement in AR
 
 Like math? I love math. Here's a fun math problem to solve.
 Given a vector and a plane, generate a new vector that is normal to the plane, drawn from the incident point of the vector on the plane.
@@ -44,8 +47,9 @@ You have a vector and a plane, so you need to calculate the point where the vect
 Once you get this point, you now end up with a point on a plane, and you can calculate the direction perpendicular to the plane starting at that point.
 You can even skip the second step if you know all of your surfaces are upright, and simply assume that the direction of the vector is up.
 There are helpful methods offered by most game engines to solve these problems, but it's important to know and to be able to implement it, for those times when an in-built solution fails at an edge case.
-
 Here's what that looks like.
+
+![Demo of aligning coordinates on a plane](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxZeEL5NVPX416GnIb0omchus2x5lSNrvOW7gL)
 
 ## Server and Persistence
 
@@ -60,15 +64,15 @@ I have quite a bit of experience with Unity, so this felt like an obvious choice
 For the backend server, I've opted to use Java with the Spring Boot framework.
 At the time of the project's conception, I was new to server development, so I just used the tech stack that I learnt from my (then) internship.
 The service was originally written in Java 8 using Spring Boot 2, connected to a PostgreSQL database for persistence.
-Unfortunately, because Heroku decided to [terminate their Free plan](https://www.heroku.com/blog/next-chapter), and because my current server implementation is incompatible with Terrarium's codebase (and would take too long to migrate), the server is no longer functional.
 
-<picture>
-</picture>
+![An attempt at an ER diagram](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxQ3mP0ox4IorqjDp5XUAfRWds4Hym8Kzn0tYi)
+
+Unfortunately, because Heroku decided to [terminate their Free plan](https://www.heroku.com/blog/next-chapter), and because my current server implementation is incompatible with Terrarium's codebase (and would take too long to migrate), the server is no longer functional.
 
 # Development
 
 Before we decided on Terrarium, we experimented with a few other ways to incorporate game-based learning with Augmented Reality, over the months of January and Feruary 2021.
-These experiments are elaborated on Swathi's write-up.
+These experiments are elaborated on [Swathi's write-up](https://swathibalaji.com/terrarium).
 
 ![Various AR prototypes](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxnbWgjgNGk0vhIULfMSglJzOb4cEaFZHeNo39)
 
