@@ -6,7 +6,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../config";
 <header>
   <div class="header-section">
     <div class="header-frame">
-      <h1 style={{'text-align': 'center'}}>{SITE_TITLE}</h1>
+      <h1 style={{'text-align': 'center'}}><a href="/">{SITE_TITLE}</a></h1>
       <h2 style={{'text-align': 'center'}}>{SITE_DESCRIPTION}</h2>
     </div>
   </div>
@@ -14,8 +14,9 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../config";
 <nav>
   <HeaderLink href="/">home</HeaderLink>
   <HeaderLink href="/about">about</HeaderLink>
-  <HeaderLink href="/posts">posts</HeaderLink>
-  <HeaderLink href="https://cassidoo.co/newsletter">etc</HeaderLink>
+  <HeaderLink href="/resume">resume</HeaderLink>
+  <HeaderLink href="/work">work</HeaderLink>
+  <HeaderLink href="/blog">blog</HeaderLink>
 </nav>
 <style>
   h2 {
