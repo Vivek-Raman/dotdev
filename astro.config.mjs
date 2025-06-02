@@ -21,6 +21,7 @@ export default defineConfig({
           'kubernetes',
           'nodejs-light', 'nodejs-dark',
           // 'linux-light', 'linux-dark',
+          'postgresql-light', 'postgresql-dark',
           'react-light', 'react-dark',
           'spring-light', 'spring-dark',
           'unity-light', 'unity-dark',

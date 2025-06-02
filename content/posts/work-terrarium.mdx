@@ -7,11 +7,23 @@ tags:
   - work
   - unity
   - csharp
-added: "May 28 2025"
+added: "June 30, 2021"
+updated: "June 1, 2025"
 ---
+
+import TechLogo from "../../src/components/TechLogo.astro";
+import { YouTube } from "astro-lazy-youtube-embed";
 
 Terrarium is an e-learning tool leveraging Augmented Reality technology.
 It uses concepts of game-based learning along with the novelty of AR-based interactions to educate players about various plant species, their preferred habitats, and how to build a terrarium.
+
+![Login, watering, plant care in Terrarium](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxXmG2mmEGQvom5pbZYqM3fczd6a7xjLR1Tge8)
+
+<YouTube
+  embedParams={{ autoplay: 1 }}
+  title="Terrarium AR by Swathi and Vivek"
+  videoId="x5pQ0wl1S9c"
+/>
 
 # Features
 
@@ -20,6 +32,8 @@ This is a technical write-up, so I'm going to delve into some of the details tha
 - The AR Portal
 - Plant Placement in AR
 - Server and Peristence
+
+![Application flow](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4Gox41IRGQJJMpmRjVxq2OHCIK7irGDec5QX3sh4)
 
 ## The AR Portal
 
@@ -33,7 +47,7 @@ We ended up not drawing anything behind the doorway, and stuck to just a room.
 
 One cool thing I experimented with was using transparent walls and ceiling for the room, and the main motivation was to reduce the amount of interior design needed.
 It ended up working great, really selling this idea of a greenhouse, since you were able to see the rest of your environment through the walls while inside your greenhouse.
-If you're interested in learning more about how to do this, check out this tutorial that I based my portal behaviour off of.
+If you're interested in learning more about how to do this, check out [this tutorial](https://www.youtube.com/playlist?list=PLKIKuXdn4ZMhwJmPnYI0e7Ixv94ZFPvEP) that I based my portal behaviour off of.
 
 ## Plant Placement in AR
 
@@ -53,19 +67,17 @@ Here's what that looks like.
 
 ## Server and Persistence
 
-At the time, I felt most comfortable with relational database design, so I opted to use PostgreSQL.
-I had just learnt how to write my own backend servers using Java and Spring Boot from my internship at the time, so naturally, that was my choice for developing the server.
+At the time, I felt most comfortable with relational database design, so I opted to use <TechLogo name="postgresql" followColorScheme /> PostgreSQL.
+I had just learnt how to write my own backend servers using <TechLogo name="java" followColorScheme /> Java and <TechLogo name="spring" followColorScheme /> Spring Boot from my internship at the time, so naturally, that was my choice for developing the server.
+
+![An attempt at an ER diagram](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxY1U7K11gFBRv2gyCwT9lM4LeOGqHDxEoKfVb)
 
 # Technology
 
 The product consists of two parts: the frontend AR application and the backend server.
 I used the Unity Game Engine powered by the Unity AR Foundation framework to build an AR application that would deploy across platforms.
-I have quite a bit of experience with Unity, so this felt like an obvious choice to me, given the timeline and the amount of work to be done.
-For the backend server, I've opted to use Java with the Spring Boot framework.
-At the time of the project's conception, I was new to server development, so I just used the tech stack that I learnt from my (then) internship.
-The service was originally written in Java 8 using Spring Boot 2, connected to a PostgreSQL database for persistence.
-
-![An attempt at an ER diagram](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxQ3mP0ox4IorqjDp5XUAfRWds4Hym8Kzn0tYi)
+I have quite a bit of experience with <TechLogo name="unity" followColorScheme /> Unity, so this felt like an obvious choice to me, given the timeline and the amount of work to be done.
+For the backend server, I've opted to use <TechLogo name="java" followColorScheme /> Java with the <TechLogo name="spring" followColorScheme /> Spring Boot framework. I was new to backend development at the time, so I just used the tech stack that I learnt from my (then) internship.
 
 Unfortunately, because Heroku decided to [terminate their Free plan](https://www.heroku.com/blog/next-chapter), and because my current server implementation is incompatible with Terrarium's codebase (and would take too long to migrate), the server is no longer functional.
 
@@ -77,3 +89,9 @@ These experiments are elaborated on [Swathi's write-up](https://swathibalaji.com
 ![Various AR prototypes](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxnbWgjgNGk0vhIULfMSglJzOb4cEaFZHeNo39)
 
 After we decided to pursue this idea, we started on the 4th week of February 2021, and wrapped it up in the second week of March 2021, which sums up to 3 weeks of development.
+
+# Research
+
+Swathi and I conducted some preliminary user research on this prototype, and presented our paper at the 2021 IEEE International Conference on Intelligent Technologies (CONIT).
+The paper is published under the IEEE conference proceedings.
+Here are links to it on [IEEE](http://dx.doi.org/10.1109/CONIT51480.2021.9498304) and on [ResearchGate](https://www.researchgate.net/publication/353697031).

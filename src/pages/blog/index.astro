@@ -7,8 +7,11 @@ import Post from "../../components/Post.astro";
 import ColorScript from "../../components/ColorScript.astro";
 
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../config";
+import Tags from "../../components/Tags.astro";
+import getTags from "../../scripts/getTags";
 
 let posts = await getCollection("posts");
+const tags = getTags(posts);
 
 posts = posts.sort(
   (a, b) =>
@@ -37,6 +40,14 @@ posts = posts.sort(
         You can also <a href="https://blahg.netlify.app/rss.xml"> subscribe with RSS! </a>
       </p> -->
     </main>
+
+    <Tags tags={tags} all />
+    <br />
+
+    <p class="center">
+      You can also <a href="/rss.xml">subscribe with RSS</a>!
+    </p>
+
     <Footer />
     <ColorScript />
   </body>
