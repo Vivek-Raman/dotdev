@@ -17,13 +17,12 @@ export const GET = () =>
     site: import.meta.env.SITE,
     items: posts.map((post) => {
       return {
-        link: `/posts/${post.data.slug}`,
+        link: `/blog/${post.data.slug}`,
         title: post.data.title,
         pubDate: post.data.added,
         description: post.data.description,
-        content: post.rendered.html,
         customData: `<updated>${post.data.updated ? post.data.updated : ""}</updated>`,
       };
     }),
-    // stylesheet: "/rss-styles.xsl",
+    stylesheet: "/rss-styles.xsl",
   });
