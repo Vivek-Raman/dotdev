@@ -24,5 +24,4 @@ export const GET = () =>
         customData: `<updated>${post.data.updated ? post.data.updated : ""}</updated>`,
       };
     }),
-    stylesheet: "/rss-styles.xsl",
   });

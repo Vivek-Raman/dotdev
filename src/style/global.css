@@ -265,3 +265,7 @@ ul li time {
     padding: 0;
   }
 }
+
+svg {
+  filter: grayscale(10%);
+}
