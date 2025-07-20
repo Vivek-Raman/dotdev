@@ -3,7 +3,7 @@ const { slug, title, tags, description, date } = Astro.props;
 ---
 
 <li class="post">
-  <a href={`/blog/${slug}/`} class="title">{title}</a>
+  <a href={`/blog/${slug}/`} class="title" data-astro-prefetch>{title}</a>
   <time datetime={date}>
     {
       new Date(date).toLocaleDateString("en-us", {

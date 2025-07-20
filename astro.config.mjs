@@ -8,6 +8,9 @@ export default defineConfig({
   site: "https://vivekraman.dev",
   base: "/",
   output: 'static',
+  prefetch: {
+    defaultStrategy: "hover",
+  },
   integrations: [
     sitemap(),
     mdx(),
@@ -15,6 +18,7 @@ export default defineConfig({
       include: {
         'skill-icons': [
           'appwrite',
+          'astro',
           'aws-light', 'aws-dark',
           'bash-light', 'bash-dark',
           'blender-light', 'blender-dark',
