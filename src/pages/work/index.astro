@@ -1,15 +1,12 @@
 ---
 import { getCollection } from "astro:content";
-import BaseHead from "../../components/BaseHead.astro";
-import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
-import Post from "../../components/Post.astro";
-import ColorScript from "../../components/ColorScript.astro";
-
-import { SITE_TITLE, SITE_DESCRIPTION } from "../../config";
+import Post from "../../components/blog/Post.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../config";
+import RootLayout from "../../layouts/RootLayout.astro";
 
 let allPosts = await getCollection("posts");
-const taggedPosts = allPosts.reduce((allTags, post) => {
+let posts = allPosts.filter((post) => !post.data.hidden);
+const taggedPosts = posts.reduce((allTags, post) => {
   const postTags = post.data.tags;
   if (postTags) {
     postTags.forEach((tag) => {
@@ -28,24 +25,15 @@ let sortedPosts =
   ) ?? [];
 ---
 
-<!doctype html>
-<html lang="en-us">
-  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  <body>
-    <Header />
-    <main>
-      <content>
-        <h3>My Work</h3>
-        <ul class="tags-list">
-          {
-            sortedPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-              <Post {url} {description} {date} {slug} {title} {tags} />
-            ))
-          }
-        </ul>
-      </content>
-      <Footer />
-    </main>
-    <ColorScript />
-  </body>
-</html>
+<RootLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <content>
+    <h3>My Work</h3>
+    <ul class="tags-list">
+      {
+        sortedPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
+          <Post {url} {description} {date} {slug} {title} {tags} />
+        ))
+      }
+    </ul>
+  </content>
+</RootLayout>

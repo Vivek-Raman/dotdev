@@ -1,16 +1,12 @@
 ---
 import { getCollection } from "astro:content";
-import BaseHead from "../../components/BaseHead.astro";
-import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
-import Post from "../../components/Post.astro";
-import ColorScript from "../../components/ColorScript.astro";
-
-import { SITE_TITLE, SITE_DESCRIPTION } from "../../config";
-import Tags from "../../components/Tags.astro";
+import Post from "../../components/blog/Post.astro";
+import Tags from "../../components/blog/Tags.astro";
+import RootLayout from "../../layouts/RootLayout.astro";
 import getTags from "../../scripts/getTags";
 
-let posts = await getCollection("posts");
+let allPosts = await getCollection("posts");
+let posts = allPosts.filter((post) => !post.data.hidden);
 const tags = getTags(posts);
 
 posts = posts.sort(
@@ -20,35 +16,25 @@ posts = posts.sort(
 );
 ---
 
-<!doctype html>
-<html lang="en-us">
-  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  <body>
-    <Header />
-    <main>
-      <content>
-        <ul class="posts-list">
-          {
-            posts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-              <Post {description} {date} {slug} {title} {tags} />
-            ))
-          }
-        </ul>
-      </content>
+<RootLayout>
+  <content>
+    <ul class="posts-list">
+      {
+        posts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
+          <Post {description} {date} {slug} {title} {tags} />
+        ))
+      }
+    </ul>
+  </content>
 
-      <!-- <p class="center">
-        You can also <a href="https://blahg.netlify.app/rss.xml"> subscribe with RSS! </a>
-      </p> -->
-    </main>
+    <!-- <p class="center">
+      You can also <a href="https://blahg.netlify.app/rss.xml"> subscribe with RSS! </a>
+    </p> -->
 
-    <Tags tags={tags} all />
-    <br />
+  <Tags tags={tags} all />
+  <br />
 
-    <p class="center">
-      You can also <a href="/rss.xml">subscribe with RSS</a>!
-    </p>
-
-    <Footer />
-    <ColorScript />
-  </body>
-</html>
+  <p class="center">
+    You can also <a href="/rss.xml">subscribe with RSS</a>!
+  </p>
+</RootLayout>

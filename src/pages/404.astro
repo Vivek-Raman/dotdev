@@ -1,28 +1,17 @@
 ---
 import { getCollection } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import ColorScript from "../components/ColorScript.astro";
-import Tags from "../components/Tags.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../config";
+import Tags from "../components/blog/Tags.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../config";
+import RootLayout from "../layouts/RootLayout.astro";
 import getTags from "../scripts/getTags";
 
-const posts = await getCollection("posts");
+const allPosts = await getCollection("posts");
+const posts = allPosts.filter((post) => !post.data.hidden);
 const tags = getTags(posts);
 ---
 
-<!doctype html>
-<html lang="en-us">
-  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  <body>
-    <Header title={SITE_TITLE} />
-    <main>
-      404: Page not found
+<RootLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  404: Page not found
 
-      <Tags tags={tags} all />
-    </main>
-    <Footer />
-    <ColorScript />
-  </body>
-</html>
+  <Tags tags={tags} all />
+</RootLayout>

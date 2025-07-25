@@ -1,13 +1,10 @@
 ---
 import { getCollection } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import ColorScript from "../components/ColorScript.astro";
-import Tags from "../components/Tags.astro";
+import Tags from "../components/blog/Tags.astro";
 import getTags from "../scripts/getTags";
 
-const posts = await getCollection("posts");
+const allPosts = await getCollection("posts");
+const posts = allPosts.filter((post) => !post.data.hidden);
 const allTags = getTags(posts);
 
 let {
@@ -29,33 +26,22 @@ if (updated) {
 }
 ---
 
-<html lang="en-us">
-  <BaseHead title={title} description={description} />
-
-  <body>
-    <Header />
-    <main>
-      <article>
-        {heroImage && <img width={720} height={360} src={heroImage} alt="" />}
-        <h1 class="article-title">{title}</h1>
-        {
-          updated ? (
-            <span>
-              <time>{added}</time>, last updated on <time>{updated}</time>
-            </span>
-          ) : (
-            <span>{added && <time>{added}</time>}</span>
-          )
-        }
-        <Tags tags={tags} />
-        <hr />
-        <div class="blog-post">
-          <slot />
-        </div>
-      </article>
-    </main>
-    <Tags tags={allTags} all />
-    <Footer />
-    <ColorScript />
-  </body>
-</html>
+<article>
+  {heroImage && <img width={720} height={360} src={heroImage} alt="" />}
+  <h1 class="article-title">{title}</h1>
+  {
+    updated ? (
+      <span>
+        <time>{added}</time>, last updated on <time>{updated}</time>
+      </span>
+    ) : (
+      <span>{added && <time>{added}</time>}</span>
+    )
+  }
+  <Tags tags={tags} />
+  <hr />
+  <div class="blog-post">
+    <slot />
+  </div>
+</article>
+<Tags tags={allTags} all />

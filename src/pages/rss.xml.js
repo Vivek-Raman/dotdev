@@ -1,8 +1,9 @@
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../config";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../config";
 
-let posts = await getCollection("posts");
+let allPosts = await getCollection("posts");
+let posts = allPosts.filter((post) => !post.data.hidden);
 
 posts = posts.sort(
   (a, b) =>

@@ -1,9 +1,11 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
+import RootLayout from "../../layouts/RootLayout.astro";
 
 export async function getStaticPaths() {
-  let posts = await getCollection("posts");
+  let allPosts = await getCollection("posts");
+  let posts = allPosts.filter((post) => !post.data.hidden);
 
   return posts.map((post) => {
     return {
@@ -13,10 +15,16 @@ export async function getStaticPaths() {
   });
 }
 
-const { post } = Astro.props;
+interface BlogPageProps {
+  post: CollectionEntry<"posts">;
+}
+
+const { post } = Astro.props as BlogPageProps;
 const { Content } = await render(post);
 ---
 
-<BlogPost content={post.data}>
-  <Content />
-</BlogPost>
+<RootLayout>
+  <BlogPost content={post.data}>
+    <Content />
+  </BlogPost>
+</RootLayout>
