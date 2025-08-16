@@ -1,0 +1,96 @@
+---
+title: Itemize Receipts
+slug: itemize-receipts
+description: >-
+  A chromium extension to scan and automate receipts management.
+tags:
+  - project
+  - chromium
+  - automation
+  - productivity
+added: "August 15, 2025"
+updated: "August 15, 2025"
+hidden: false
+---
+
+import { YouTube } from "astro-lazy-youtube-embed";
+
+This is a weekend project I put together because of the overwhelming number of receipts I accumulated over the summer holiday.
+
+I haven't really set up a landing page for this because it is mostly for me (and my flatmates, I guess).
+What I _did_ set up is a little video demonstration. Check it out!
+
+<YouTube
+  embedParams={{ autoplay: 1 }}
+  title="Itemize Receipts - Demo"
+  videoId="7ldPDWMu_rs"
+/>
+
+# Privacy
+
+This extension does not collect any user data.
+Your settings are stored on your browser.
+Your API key is encrypted and stored on your browser.
+
+Your receipts are sent to your LLM provider and model directly - I do not see or store any of it.
+Please refer to the privacy policy of the model provider of your choice.
+They may or may not be used for training purposes; this is outside of my control.
+
+# Motivation
+
+I live with a lot of flatmates.
+We usually share our supplies, and each person decides if they are willing to split each item.
+We use Splitwise for this, because it works for our use-case very well.
+It has a feature called itemized splits, where we can add each line item from a receipt and decide who wants a part of it.
+Here's an example of how we split a bill.
+
+
+![Example of how we split a bill](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4Goxcz62nqhy4Gox6OEWa7Y1vFdRI3LnDBASgqeK)
+
+However, just filling in the data gets quite cumbersome.
+This became a huge issue this summer, where I accumulated over 80 receipts without entering a single one.
+I decided to try automating it.
+
+# What it does
+
+This is a chromium extension that provides a convenient way to access your receipts in a tablular format.
+It opens a sidebar on your browser where you can upload an image of your receipt.
+Then it uses AI to extract the items in the receipt.
+
+![Scanned receipt](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxXuAXLpVEGQvom5pbZYqM3fczd6a7xjLR1Tge)
+
+If you open Splitwise, the extension provides a convenient autofill button that copies over all of the scanned content into Splitwise.
+
+![Autofilled items on Splitwise](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxV1G1FF2PAJgDmbItKSOk0qrMHECZFLcYWy2a)
+
+# Implementation
+
+## Extension
+
+I considered the Splitwise API at first, but glancing through the API documentation, I couldn't find a way to create the itemized splits I wanted.
+Besides, the splitwise UI is good enough and I had no intention of essentially recreating it.
+So I decided to create a Chromium extension that could directly insert data into the splitwise UI.
+
+## AI
+
+The next obvious question was: how do I get the data itself?
+I obviously wanted to avoid spending money and time on this project.
+My first idea was to find and deploy a fine-tuned transformer - surely somebody has one of these.
+
+Alongside this, I considered just sending it off to a general LLM to see how it did.
+Even on the no-cost models through OpenRouter, I found that the results were good enough.
+So, I benched the previous idea and rolled with LLM integration.
+
+Users can configure their own API key and providers in the extension settings.
+
+![AI configuration](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4Goxf3mYHVlQkzMwyXGPWRA7ITh6LVsY148OH3JZ)
+
+# Timeline
+
+Again, this was a project I did not want to spend time in perfecting.
+80 receipts is not actually that many, so spending too long on this would be counter-productive.
+
+- I spent one Sunday working on the main flow.
+- Then I spent a few hours over the following week working on settings, error handling, and just making it useable.
+- Working on media for the extension store page took a couple more hours.
+  One could argue that this isn't essential, but I wanted the extension synced on all my devices so I decided to publish it.
