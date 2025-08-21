@@ -8,6 +8,7 @@ const posts = defineCollection({
     title: z.string(),
     slug: z.string(),
     description: z.string(),
+    heroImage: z.string().optional().nullable(),
     added: z.union([z.string(), z.date()]),
     updated: z.union([z.string(), z.date()]).optional(),
     tags: z.array(z.string()),
