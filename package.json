@@ -1,6 +1,6 @@
 {
   "name": "vivekraman.dev",
-  "version": "3.2-rc2",
+  "version": "3.3-rc1",
   "private": true,
   "scripts": {
     "dev": "npm run start",
