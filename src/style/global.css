@@ -126,6 +126,7 @@ nav {
   background: var(--transwhite);
   -webkit-backdrop-filter: blur(1px);
   backdrop-filter: blur(1px);
+  z-index: 100;
 }
 
 nav a {
