@@ -23,7 +23,7 @@ const { post } = Astro.props as BlogPageProps;
 const { Content } = await render(post);
 ---
 
-<RootLayout>
+<RootLayout titlePrefix={post.data.title} description={post.data.description}>
   <BlogPost content={post.data}>
     <Content />
   </BlogPost>

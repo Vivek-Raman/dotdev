@@ -1,7 +1,6 @@
 ---
 import { getCollection } from "astro:content";
 import Post from "../../components/blog/Post.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../config";
 import RootLayout from "../../layouts/RootLayout.astro";
 
 let allPosts = await getCollection("posts");
@@ -25,7 +24,7 @@ let sortedPosts =
   ) ?? [];
 ---
 
-<RootLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+<RootLayout titlePrefix="Work">
   <content>
     <h3>My Work</h3>
     <ul class="tags-list">
