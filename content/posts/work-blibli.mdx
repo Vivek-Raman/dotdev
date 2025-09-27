@@ -33,4 +33,27 @@ Quinbay Technologies is a sister company to blibli.com that handles some of the 
 
 Blibli is built on a microservice architecture, with most services hosted on <TechLogo name="gcp" followColorScheme /> Google Cloud platform, and some on their data center on-premises.
 
-Backend servers are written in <TechLogo name="java" followColorScheme /> using <TechLogo name="spring" followColorScheme /> Spring Boot, built into a Docker container and deployed using <TechLogo name="kubernetes" /> Kubernetes.
+Backend servers are written in <TechLogo name="java" followColorScheme /> Java and RxJava, using <TechLogo name="spring" followColorScheme /> Spring Boot, built into a Docker container and deployed using <TechLogo name="kubernetes" /> Kubernetes.
+
+The frontend is build using the <TechLogo name="vuejs" followColorScheme /> Vue framework.
+Various parts of the customer and seller interface are split into microsite repositories, which were built and uploaded into a <TechLogo name="gcp" followColorScheme /> GCS bucket.
+They are then deployed via an <TechLogo name="nginx" /> nginx server.
+
+# My contributions
+
+## Customer order cancellation
+
+My first big story in Blibli was to build the option for a customer to cancel their order.
+Before my work, customers could only request a cancellation via customer service.
+This was quite a complex task, and it introduced me to the intricacies of system design.
+
+There was a pre-existing cancellation flow for sellers and customer service to cancel orders.
+With some minor tweaks, it could be adapted for customers.
+But the main difference in the experience was that customers would expect to cancel entire orders, while sellers and customer service could cancel individual items in an order.
+
+The recommendation I received from my lead was to treat the existing cancellation flow as a black box.
+The naive solution here would be to invoke the black box in a loop.
+However, this black box was a slow operation, and invoking it multiple times would lead to a poor user experience.
+
+After brainstorming with my lead, we decided that the simplest solution would be to defer the cancellation request to a background job, enqueueing the cancellation of each item via <TechLogo name="kafka" /> Kafka.
+The user would be informed that the cancellation was being processed, and they would receive a notification once it was complete.
