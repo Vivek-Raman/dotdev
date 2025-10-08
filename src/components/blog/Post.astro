@@ -19,7 +19,11 @@ const { slug, title, tags, description, date } = Astro.props;
     {
       tags &&
         tags.map((tag) => (
-          <a class="tag" style="text-decoration: none;" href={`/blog/tag/${tag}`}>
+          <a
+            class="tag"
+            style="text-decoration-thickness: 1px; text-decoration-style: dotted;"
+            href={`/blog/tag/${tag}`}
+          >
             #{tag}
           </a>
         ))

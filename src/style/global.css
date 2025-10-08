@@ -227,13 +227,23 @@ h3 {
 
 .header-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  gap: 8px;
+}
+
+#header-image {
+  max-width: 250px;
+  border-radius: 100%;
+  border-width: 8px;
+  border-style: double;
 }
 
 .header-frame {
   max-width: 350px;
+  text-align: center;
 }
 
 article :not(.article-title) {
