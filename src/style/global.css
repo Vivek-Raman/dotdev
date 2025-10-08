@@ -204,7 +204,7 @@ pre > code {
 blockquote {
   border: 1px solid var(--gray);
   color: var(--black);
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   margin: 0px;
   font-style: italic;
 }

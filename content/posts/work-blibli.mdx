@@ -12,7 +12,7 @@ tags:
   - gcp
   - unity
 added: "June 14, 2024"
-updated: "June 31, 2025"
+updated: "September 30, 2025"
 ---
 
 import TechLogo from "../../src/components/TechLogo.astro";
@@ -21,7 +21,7 @@ In the final semester of my undergraduate program, I secured an internship at Qu
 This expanded into a full-time software development engineer role after I graduated in August.
 In this post, I want to expand on some of the coolest things I worked on in blibli.com, and I'm hoping to showcase my process tackling complex requirements.
 
-![An average day at Quinbay]()
+![An average day at Quinbay](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxB3ejo87bLeWn0QHTAX3Vl6EauD9swYMt17FN)
 
 # The product
 
@@ -41,6 +41,20 @@ They are then deployed via an <TechLogo name="nginx" /> nginx server.
 
 # My contributions
 
+## Seller fulfillment center revamp
+
+The seller fulfillment center is a portal for sellers to manage their inventory and orders.
+The code was quite old and unmaintainable, so when the organization decided to take two months across the board to invest in clearing tech debt, we rewrote the entire fulfillment experience.
+
+This project was handed to me along with a part of the team.
+- I worked with the project manager to understand and break down the various seller flows.
+- Then I distributed the tasks across my team, considering their bandwidth, availability, and inter-dependencies.
+- I worked on preparing and maintaining a framework for extensive documentation to ease communication between the tech leads, frontend developers, and API developers.
+- I organized API review sessions that squashed many gaps before development even started.
+- Since this project required the creation of one new microservice and a new micro-frontend for the seller experience, I worked with infra teams and the seller experience teams to learn, deploy, and integrate the services through our <TechLogo name="nginx" /> Nginx gateway.
+
+This project spanned just over three months from planning to kickoff, and it was my first experience leading a team and taking ownership of my decisions.
+
 ## Customer order cancellation
 
 My first big story in Blibli was to build the option for a customer to cancel their order.
@@ -57,3 +71,42 @@ However, this black box was a slow operation, and invoking it multiple times wou
 
 After brainstorming with my lead, we decided that the simplest solution would be to defer the cancellation request to a background job, enqueueing the cancellation of each item via <TechLogo name="kafka" /> Kafka.
 The user would be informed that the cancellation was being processed, and they would receive a notification once it was complete.
+
+## Stock reconciliation project
+
+This was an incredibly large project that I played a key role in kickstarting.
+The warehouse data analysts observed that some items were being undersold, and narrowed the root cause to a disparity in stock numbers reported by the overall inventory system and the warehouse stock management system.
+
+There were many steps taken to identify and mitigate this problem to a manageable level, while identifying the root cause of the disparity.
+It started with a collaboration across all of the inventory service clients to maintain and pass around a tracking ID during any stock transaction. This helped us identify specific stock journeys.
+
+With that, we were able to analyze the data to uniquely tag each tracking ID and group all transactions based on them.
+Then, we tried to accumulate the stock changes in each group, which identified several clients as sources for the disparities.
+Working with these teams to spot and squash the bugs was a task that involved a lot of inter-team communication and timeline alignment.
+
+While I was heavily involved in kickstarting this project, I took a back-step after the low-hanging fruit was addressed.
+I was still involved with communications and tracking progress as well as repairing the stock issues, for which I established a comprehensive SOP that was used by the team.
+
+## Production stability
+
+Over the 3+ years I worked at blibli.com, I worked on plenty of other challenging stories.
+I participated in war rooms and active standby for major sales events.
+
+I worked on migrating the inventory codebase to <TechLogo name="spring" followColorScheme /> Spring Boot and <TechLogo name="java" followColorScheme /> Java 17, involving the migration of XML-defined bean mazes and aspect-oriented programming definitions into fully programmatic declarations.
+This also involved communication with the performance evaluation team to build a benchmark comparing old to new performance impact.
+We saw a performance improvement of around 50% and a huge improvement in throughput, which enabled us to scale back the service and cut down considerably on cloud costs.
+
+There was an incredibly complex ingest process that we had to revamp.
+It was related to generating QR codes in bulk for sellers to display on their products in a store.
+This was a refreshing and challenging task, due to the constraints we had.
+The entire flow was orchestrated with <TechLogo name="kafka" /> Kafka as its backbone.
+
+I also conducted interviews for a couple of intern cohorts, which was honestly a bit stressful until I got the hang of it.
+
+# Conclusion
+
+My time at blibli.com was incredibly enlightening and emboldened my confidence in my knowledge and wisdom.
+I am ever grateful for the oppotunity to lead and take ownership, to be able to make important decisions knowing that I had support from my seniors and peers, and to be given the space to fail and learn from mistakes.
+Thanks for everything, folks!
+
+![All my colleagues at blibli.com](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4Gox4am36CQJJMpmRjVxq2OHCIK7irGDec5QX3sh)
