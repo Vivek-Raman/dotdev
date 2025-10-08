@@ -22,6 +22,8 @@
   "dependencies": {
     "@iconify-json/skill-icons": "^1.2.0",
     "astro-icon": "^1.1.5",
-    "astro-lazy-youtube-embed": "^0.5.4"
+    "astro-lazy-youtube-embed": "^0.5.4",
+    "mdast-util-to-string": "^4.0.0",
+    "reading-time": "^1.5.0"
   }
 }

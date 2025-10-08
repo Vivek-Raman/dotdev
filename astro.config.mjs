@@ -2,6 +2,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
+import { remarkReadingTime } from "./src/scripts/reading-time";
 
 // https://astro.build/config
 export default defineConfig({
@@ -103,6 +104,7 @@ export default defineConfig({
       },
       langs: [],
     },
+    remarkPlugins: [remarkReadingTime],
   },
   vite: {
     appType: "mpa",

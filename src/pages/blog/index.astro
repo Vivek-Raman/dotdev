@@ -14,22 +14,74 @@ posts = posts.sort(
     new Date(b.data.updated || b.data.added).valueOf() -
     new Date(a.data.updated || a.data.added).valueOf()
 );
+
+const taggedPosts = posts.reduce((allTags, post) => {
+  const postTags = post.data.tags;
+  if (postTags) {
+    postTags.forEach((tag) => {
+      if (!allTags[tag]) {
+        allTags[tag] = [];
+      }
+      allTags[tag].push(post);
+    });
+  }
+  return allTags;
+}, {});
+
+let workPosts = taggedPosts["work"] ?? [];
+let projectPosts = taggedPosts["project"] ?? [];
+let otherPosts = posts.filter(
+  (post) => !post.data.tags?.includes("work") && !post.data.tags?.includes("project")
+);
 ---
 
 <RootLayout titlePrefix="Blog" description="Blog - Vivek Raman">
   <content>
-    <ul class="posts-list">
-      {
-        posts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-          <Post {description} {date} {slug} {title} {tags} />
-        ))
-      }
-    </ul>
+    <div>
+      <h1>My Projects</h1>
+      <ul class="tags-list">
+        {
+          projectPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
+            <Post
+              {url}
+              {description}
+              {date}
+              {slug}
+              {title}
+              tags={tags.filter((t) => t !== "project")}
+            />
+          ))
+        }
+      </ul>
+    </div>
+    <div>
+      <h1>My Work</h1>
+      <ul class="tags-list">
+        {
+          workPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
+            <Post
+              {url}
+              {description}
+              {date}
+              {slug}
+              {title}
+              tags={tags.filter((t) => t !== "work")}
+            />
+          ))
+        }
+      </ul>
+    </div>
+    <div>
+      <h1>Other Posts</h1>
+      <ul class="tags-list">
+        {
+          otherPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
+            <Post {url} {description} {date} {slug} {title} {tags} />
+          ))
+        }
+      </ul>
+    </div>
   </content>
-
-    <!-- <p class="center">
-      You can also <a href="https://blahg.netlify.app/rss.xml"> subscribe with RSS! </a>
-    </p> -->
 
   <Tags tags={tags} all />
   <br />
@@ -38,3 +90,31 @@ posts = posts.sort(
     You can also <a href="/rss.xml">subscribe with RSS</a>!
   </p>
 </RootLayout>
+
+<style>
+  content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 2rem;
+  }
+
+  content > div {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  @media (max-width: 1024px) {
+    content {
+      flex-direction: column;
+      flex-wrap: nowrap;
+    }
+    
+    content > div {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+  }
+</style>
