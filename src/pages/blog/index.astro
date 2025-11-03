@@ -27,69 +27,33 @@ const taggedPosts = posts.reduce((allTags, post) => {
   }
   return allTags;
 }, {});
-
-let workPosts = taggedPosts["work"] ?? [];
-let projectPosts = taggedPosts["project"] ?? [];
-let otherPosts = posts.filter(
-  (post) => !post.data.tags?.includes("work") && !post.data.tags?.includes("project")
-);
 ---
 
 <RootLayout titlePrefix="Blog" description="Blog - Vivek Raman">
   <content>
-    <div>
-      <h1>My Projects</h1>
-      <ul class="tags-list">
-        {
-          projectPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-            <Post
-              {url}
-              {description}
-              {date}
-              {slug}
-              {title}
-              tags={tags.filter((t) => t !== "project")}
-            />
-          ))
-        }
-      </ul>
-    </div>
-    <div>
-      <h1>My Work</h1>
-      <ul class="tags-list">
-        {
-          workPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-            <Post
-              {url}
-              {description}
-              {date}
-              {slug}
-              {title}
-              tags={tags.filter((t) => t !== "work")}
-            />
-          ))
-        }
-      </ul>
-    </div>
-    <div>
-      <h1>Other Posts</h1>
-      <ul class="tags-list">
-        {
-          otherPosts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-            <Post {url} {description} {date} {slug} {title} {tags} />
-          ))
-        }
-      </ul>
-    </div>
+    <ul class="tags-list">
+      {
+        posts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
+          <Post
+            {url}
+            {description}
+            {date}
+            {slug}
+            {title}
+            tags={tags.filter((t) => t !== "project")}
+          />
+        ))
+      }
+    </ul>
   </content>
-
-  <Tags tags={tags} all />
-  <br />
-
-  <p class="center">
-    You can also <a href="/rss.xml">subscribe with RSS</a>!
-  </p>
 </RootLayout>
+
+<Tags tags={tags} all />
+<br />
+
+<p class="center">
+  You can also <a href="/rss.xml">subscribe with RSS</a>!
+</p>
 
 <style>
   content {
@@ -111,7 +75,7 @@ let otherPosts = posts.filter(
       flex-direction: column;
       flex-wrap: nowrap;
     }
-    
+
     content > div {
       flex: 1 1 100%;
       width: 100%;

@@ -127,13 +127,14 @@ nav {
   -webkit-backdrop-filter: blur(1px);
   backdrop-filter: blur(1px);
   z-index: 100;
+
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
 }
 
-nav a {
-  margin: 25px 0;
-}
-nav a:not(:last-child) {
-  padding: 0 12px 0 0;
+nav > * {
+  margin-block: 25px;
 }
 
 hr {
