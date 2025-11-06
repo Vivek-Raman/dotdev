@@ -55,7 +55,8 @@ const { titlePrefix } = Astro.props;
         (e.__SV = 1));
     })(document, window.posthog || []);
     posthog.init("phc_E8YI0v8PZGTyGe2SlinFiDUiKzkdpq0PK6Nmc46cYaE", {
-      api_host: 'https://us.i.posthog.com',
+      api_host: 'http://localhost/hog',
+      // api_host: 'http://vivekraman.dev/hog',
       defaults: '2025-05-24',
       person_profiles: 'always',
       autocapture: {
@@ -65,6 +66,7 @@ const { titlePrefix } = Astro.props;
     });
   </script>
 )}
+
 <BaseHead
   title={titlePrefix ? `${titlePrefix} - ${SITE_TITLE}` : SITE_TITLE}
   description={SITE_DESCRIPTION}
