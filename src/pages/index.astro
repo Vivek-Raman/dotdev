@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import LandingPage from "../../content/landing-page.md";
+import LandingPage from "../../content/landing-page.mdx";
 import HomePosts from "../components/HomePosts.astro";
 import RootLayout from "../layouts/RootLayout.astro";
 
@@ -12,6 +12,6 @@ const posts = allPosts.filter((post) => !post.data.hidden);
   <LandingPage />
   <br />
 
-  <h3>Here's my most recent posts</h3>
+  <h3>Here are my most recent posts</h3>
   <HomePosts allPosts={posts} />
 </RootLayout>

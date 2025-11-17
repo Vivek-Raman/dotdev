@@ -1,0 +1,65 @@
+---
+title: Splitwise Expense Creation tool
+slug: bulk-expense-splitwise
+heroImage:
+description: >-
+  A small tool to create placeholder expense records on Splitwise.
+tags:
+  - project
+  - nodejs
+  - react
+  - productivity
+added: "September 30, 2025"
+updated: "October 1, 2025"
+hidden: false
+---
+
+Here is another quick weekend project.
+
+Following my [extension](/blog/itemize-receipts) to automate filling receipts, I realized that to tackle a backlog of 80 receipts, I needed to create 80 expenses.
+Splitwise currently limits the number of expenses you can create in one day to 5.
+So I did a little testing to see if I can create the expenses every night as midnight rolls over using a scheduled job.
+
+But what I found was that there was no limit on how many expenses I could create using the API.
+This sounds like a major oversight or a scrappy frontend implementation of the free tier restriction.
+Either way, it works out great for me.
+
+![Input form selecting group and number of expenses to create](https://tgq565ix1n.ufs.sh/f/ck6yA5hy4GoxKjiBH8TbehQHPYNzwW7l3VkZj81LtnGrSa4d)
+
+# Privacy
+
+- This is in no way affliated with Splitwise. I am a third-party.
+- None of the services I offer or plan to offer will be monetized.
+- I do not store or log your information.
+- Any and all data you see flows directly between your browser and their servers.
+
+# How to use
+
+You'll need to set up a new app to get your credentials.
+
+- Navigate to https://secure.splitwise.com/oauth_clients and log in.
+- Select "Register your application".
+- Fill in the required fields of the form.
+
+| Form input              | Recommended value         |
+|-------------------------|---------------------------|
+| Application Name        | Enqueue Splitwise         |
+| Application Description | Created by vivekraman.dev |
+| Homepage URL            | https://vivekraman.dev    |
+
+- Select "Register and get API key".
+- You should see your Consumer Key and Consumer Secret values.
+  Use these to log in to my app.
+- Pick a group to create the expenses in.
+  I created a group just for this app, because you can edit the expense and move it to any group that needs it.
+- Pick the number of records you'd like.
+  It's capped at 50, but go easy.
+- It'll need to wait one second between each creation, so be patient.
+- You're all set! If you can't see them on an empty or settled group, you'll find the expenses under "Show settled expenses".
+
+# Dear Splitwise,
+
+If you're somebody at Splitwise reading this, hire me and I'll fix your bugs.
+I have other ways of getting around limitations and ways to defend against them as well.
+See me not as a threat but as an opportunity.
+Much love!

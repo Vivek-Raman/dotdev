@@ -1,7 +1,6 @@
 ---
 import { getCollection } from "astro:content";
 import Post from "../../../components/blog/Post.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../../config";
 import RootLayout from "../../../layouts/RootLayout.astro";
 
 export async function getStaticPaths() {
@@ -36,7 +35,7 @@ let sortedPosts = tag.sort(
 );
 ---
 
-<RootLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+<RootLayout title={`Posts tagged with "${currentTag}"`} description={"Blog - Vivek Raman"}>
   <content>
     <h3>Posts tagged with "{currentTag}"</h3>
     <ul class="tags-list">

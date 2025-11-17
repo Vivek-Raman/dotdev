@@ -20,11 +20,11 @@ interface BlogPageProps {
 }
 
 const { post } = Astro.props as BlogPageProps;
-const { Content } = await render(post);
+const { Content, remarkPluginFrontmatter } = await render(post);
 ---
 
-<RootLayout>
-  <BlogPost content={post.data}>
+<RootLayout titlePrefix={post.data.title} description={post.data.description}>
+  <BlogPost content={post.data} readingTime={remarkPluginFrontmatter.minutesRead}>
     <Content />
   </BlogPost>
 </RootLayout>

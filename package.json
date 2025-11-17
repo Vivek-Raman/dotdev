@@ -1,9 +1,9 @@
 {
   "name": "vivekraman.dev",
-  "version": "3.3-rc1",
+  "version": "4.1-rc2",
   "private": true,
   "scripts": {
-    "dev": "npm run start",
+    "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -23,6 +23,8 @@
     "@iconify-json/simple-icons": "^1.2.49",
     "@iconify-json/skill-icons": "^1.2.3",
     "astro-icon": "^1.1.5",
-    "astro-lazy-youtube-embed": "^0.5.4"
+    "astro-lazy-youtube-embed": "^0.5.4",
+    "mdast-util-to-string": "^4.0.0",
+    "reading-time": "^1.5.0"
   }
 }
