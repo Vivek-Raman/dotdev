@@ -1,18 +1,17 @@
 ---
-// components/TechWithIcon.astro
 import { Icon } from "astro-icon/components";
 
-const { name, followColorScheme } = Astro.props;
+const { pack, name, followColorScheme } = Astro.props;
 ---
 
 <span class="tech-logo">
   {
     !followColorScheme ? (
-      <Icon name={`skill-icons:${name.toLowerCase()}`} class="inline-icon" />
+      <Icon name={`${pack ?? 'skill-icons'}:${name.toLowerCase()}`} class="inline-icon" />
     ) : (
       <>
-        <Icon name={`skill-icons:${name.toLowerCase()}-dark`} class="inline-icon icon-dark" />
-        <Icon name={`skill-icons:${name.toLowerCase()}-light`} class="inline-icon icon-light" />
+        <Icon name={`${pack ?? 'skill-icons'}:${name.toLowerCase()}-dark`} class="inline-icon icon-dark" />
+        <Icon name={`${pack ?? 'skill-icons'}:${name.toLowerCase()}-light`} class="inline-icon icon-light" />
       </>
     )
   }

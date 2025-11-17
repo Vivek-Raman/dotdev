@@ -16,6 +16,9 @@ export default defineConfig({
     mdx(),
     icon({
       include: {
+        'simple-icons': [
+          'langchain'
+        ],
         'skill-icons': [
           'appwrite',
           'astro',
