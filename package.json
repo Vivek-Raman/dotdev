@@ -1,6 +1,6 @@
 {
   "name": "vivekraman.dev",
-  "version": "4.1-rc2",
+  "version": "4.2-rc1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
