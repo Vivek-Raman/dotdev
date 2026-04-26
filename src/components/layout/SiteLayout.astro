@@ -5,6 +5,7 @@ import { fade } from "astro:transitions";
 import "../../styles.css";
 import { THEME } from "../../config/theme";
 import ThemeInit from "../ThemeInit.astro";
+import PostHog from "../PostHog.astro";
 import SiteTopNav from "./SiteTopNav.astro";
 import SiteFooter from "./SiteFooter.astro";
 
@@ -75,6 +76,7 @@ const fontPreloads: string[] = [
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <title>{pageTitle}</title>
     <ClientRouter />
+    <PostHog />
     <slot name="head" />
   </head>
   <body>
