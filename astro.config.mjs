@@ -7,6 +7,8 @@ export default defineConfig({
   site: "https://vivekraman.dev",
   base: "/",
   output: "static",
+  /** Match static server’s directory URLs so internal links don’t chain redirects (better for view transitions). */
+  trailingSlash: "always",
   integrations: [
     mdx(),
     sitemap(),
