@@ -1,0 +1,35 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = { href: string } & HTMLAttributes<"a">;
+
+function normalizePathname(p: string): string {
+  if (p.length > 1 && p.endsWith("/")) {
+    return p.slice(0, -1) || "/";
+  }
+  return p;
+}
+
+const { href, class: className, ...anchorRest } = Astro.props as Props;
+const currentPath = normalizePathname(Astro.url.pathname);
+
+const isHashOnly = href.trimStart().startsWith("#");
+const targetPath = isHashOnly
+  ? ""
+  : normalizePathname(new URL(href, Astro.url).pathname);
+
+const isCurrent = !isHashOnly && currentPath === targetPath;
+const baseClass = ["c-nav-link", className].filter(Boolean);
+---
+
+{
+  isCurrent ? (
+    <span class:list={[...baseClass, "c-nav-link--current"]} aria-current="page">
+      <slot />
+    </span>
+  ) : (
+    <a class:list={baseClass} href={href} {...anchorRest}>
+      <slot />
+    </a>
+  )
+}

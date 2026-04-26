@@ -1,0 +1,48 @@
+---
+interface Props {
+  variant?: "hero" | "footer";
+}
+
+const { variant = "hero" } = Astro.props;
+const isFooter = variant === "footer";
+---
+
+<div
+  class:list={["landing__pattern", isFooter ? "landing__pattern--footer" : "landing__pattern--hero"]}
+  aria-hidden="true"
+>
+  <svg
+    class="landing__pattern-img"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 1280 800"
+    width="1280"
+    height="800"
+    preserveAspectRatio="none"
+    focusable="false"
+  >
+    <g
+      class:list={["landing__pattern-strokes", isFooter && "landing__pattern-strokes--footer"]}
+      fill="none"
+      stroke="var(--color-accent)"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path
+        d="M1507.02 539.61C1376.96 521.84 1358.39 263.31 1090.71 219.61 823.03 175.91 812.07-129.6 674.4-155.93"
+      ></path>
+      <path
+        d="M1340.38 329.51C1177.16 332.98 1055.88 561.77 726.97 553.51 398.06 545.25 336.57-80.22 113.56-146.89"
+      ></path>
+      <path
+        d="M1468.14 305.33C1364.92 313.66 1323.97 540.41 1114.69 521.33 905.41 502.25 919.83-45.67 761.24-149.51"
+      ></path>
+      <path
+        d="M1377.59 685.92C1280.94 677.38 1291.81 554.93 1049.94 477.92 808.07 400.91 864.17-7.72 722.29-89.65"
+      ></path>
+      <path
+        d="M1375.32 640.01C1205.78 628.53 1062.06 342.58 784.44 304.01 506.82 265.44 598.17-11.64 489-46.55"
+      ></path>
+    </g>
+  </svg>
+</div>

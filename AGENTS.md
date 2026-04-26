@@ -1,0 +1,1 @@
+- All URLs MUST have a trailing slash, otherwise the view transitions will break.

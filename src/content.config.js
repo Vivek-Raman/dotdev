@@ -8,11 +8,13 @@ const posts = defineCollection({
     title: z.string(),
     slug: z.string(),
     description: z.string(),
+    thumbnail: z.string().optional().nullable(),
     heroImage: z.string().optional().nullable(),
     added: z.union([z.string(), z.date()]),
     updated: z.union([z.string(), z.date()]).optional(),
     tags: z.array(z.string()),
     hidden: z.boolean().optional().default(false),
+    featuredOrder: z.number().optional(),
   }),
 });
 
