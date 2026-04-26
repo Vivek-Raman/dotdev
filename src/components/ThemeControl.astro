@@ -12,21 +12,7 @@ import { THEME } from "../config/theme";
   >
     <span class="theme-control__icon-wrap" aria-hidden="true">
       <svg
-        class="theme-control__icon theme-control__icon--system"
-        data-icon="system"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <path d="M8 21h8" />
-        <path d="M12 17v4" />
-      </svg>
-      <svg
-        class="theme-control__icon theme-control__icon--light theme-control__icon--hidden"
+        class="theme-control__icon theme-control__icon--light"
         data-icon="light"
         viewBox="0 0 24 24"
         fill="none"
@@ -113,6 +99,14 @@ import { THEME } from "../config/theme";
     return order[(i + 1) % order.length];
   }
 
+  /** Which sun/moon icon to show: follows effective appearance when preference is "system". */
+  function displayIconKey() {
+    const mode = getStored();
+    if (mode === "light") return "light";
+    if (mode === "dark") return "dark";
+    return effectiveIsDark() ? "dark" : "light";
+  }
+
   function syncUI() {
     const mode = getStored();
     const root = document.querySelector("[data-theme-control]");
@@ -121,9 +115,10 @@ import { THEME } from "../config/theme";
     if (btn) {
       btn.setAttribute("aria-label", labelForMode(mode));
     }
+    const iconKey = displayIconKey();
     root.querySelectorAll("[data-icon]").forEach((n) => {
       const m = n.getAttribute("data-icon");
-      n.classList.toggle("theme-control__icon--hidden", m !== mode);
+      n.classList.toggle("theme-control__icon--hidden", m !== iconKey);
     });
   }
 
@@ -146,7 +141,9 @@ import { THEME } from "../config/theme";
       applyFromStored();
     });
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-      if (getStored() === "system") setThemeColor();
+      if (getStored() !== "system") return;
+      setThemeColor();
+      syncUI();
     });
     window.addEventListener("storage", (e) => {
       if (e.key === storageKey) applyFromStored();
