@@ -1,0 +1,155 @@
+---
+import { THEME } from "../config/theme";
+---
+
+<div class="theme-control" data-theme-control>
+  <button
+    type="button"
+    class="theme-control__cycle"
+    data-theme-cycle
+    title="Switch color theme"
+    aria-label="Color theme: match device. Activate to use light mode."
+  >
+    <span class="theme-control__icon-wrap" aria-hidden="true">
+      <svg
+        class="theme-control__icon theme-control__icon--system"
+        data-icon="system"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="2" y="3" width="20" height="14" rx="2" />
+        <path d="M8 21h8" />
+        <path d="M12 17v4" />
+      </svg>
+      <svg
+        class="theme-control__icon theme-control__icon--light theme-control__icon--hidden"
+        data-icon="light"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="4" />
+        <path
+          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+        />
+      </svg>
+      <svg
+        class="theme-control__icon theme-control__icon--dark theme-control__icon--hidden"
+        data-icon="dark"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </span>
+  </button>
+</div>
+
+<script is:inline define:vars={{ colorDark: THEME.colorDark, colorLight: THEME.colorLight }}>
+  const storageKey = "theme";
+  const metaId = "meta-theme-color";
+  const order = /** @type {const} */ (["system", "light", "dark"]);
+
+  function getStored() {
+    try {
+      const v = localStorage.getItem(storageKey);
+      if (v === "light" || v === "dark" || v === "system") return v;
+    } catch {
+      /* ignore */
+    }
+    return "system";
+  }
+
+  function effectiveIsDark() {
+    const t = document.documentElement.getAttribute("data-theme");
+    if (t === "light") return false;
+    if (t === "dark") return true;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  function setThemeColor() {
+    const el = document.getElementById(metaId);
+    if (!el) return;
+    el.setAttribute("content", effectiveIsDark() ? colorDark : colorLight);
+  }
+
+  function setStored(mode) {
+    try {
+      if (mode === "system") localStorage.removeItem(storageKey);
+      else localStorage.setItem(storageKey, mode);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function applyFromStored() {
+    const s = getStored();
+    if (s === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", s);
+    syncUI();
+    setThemeColor();
+  }
+
+  function labelForMode(mode) {
+    if (mode === "light") return "Color theme: light. Activate to use dark mode.";
+    if (mode === "dark") return "Color theme: dark. Activate to match device setting.";
+    return "Color theme: match device. Activate to use light mode.";
+  }
+
+  function nextMode() {
+    const cur = getStored();
+    const i = order.indexOf(cur);
+    return order[(i + 1) % order.length];
+  }
+
+  function syncUI() {
+    const mode = getStored();
+    const root = document.querySelector("[data-theme-control]");
+    if (!root) return;
+    const btn = root.querySelector("[data-theme-cycle]");
+    if (btn) {
+      btn.setAttribute("aria-label", labelForMode(mode));
+    }
+    root.querySelectorAll("[data-icon]").forEach((n) => {
+      const m = n.getAttribute("data-icon");
+      n.classList.toggle("theme-control__icon--hidden", m !== mode);
+    });
+  }
+
+  function init() {
+    applyFromStored();
+  }
+
+  init();
+
+  if (!window.__themeCycleGlobalBound) {
+    window.__themeCycleGlobalBound = true;
+    document.addEventListener("click", (e) => {
+      if (!(e.target instanceof Element)) return;
+      const btn = e.target.closest("[data-theme-cycle]");
+      if (!btn) return;
+      setStored(nextMode());
+      applyFromStored();
+    });
+    document.addEventListener("astro:page-load", () => {
+      applyFromStored();
+    });
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if (getStored() === "system") setThemeColor();
+    });
+    window.addEventListener("storage", (e) => {
+      if (e.key === storageKey) applyFromStored();
+    });
+  }
+</script>

@@ -1,0 +1,21 @@
+---
+import { THEME } from "../config/theme";
+
+const themeScript = `(() => {
+  var light = ${JSON.stringify(THEME.colorLight)};
+  var dark = ${JSON.stringify(THEME.colorDark)};
+  function mqlDark() {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  try {
+    var s = localStorage.getItem("theme");
+    if (s === "light" || s === "dark") document.documentElement.setAttribute("data-theme", s);
+  } catch (e) {}
+  var effDark =
+    document.documentElement.getAttribute("data-theme") === "dark" ||
+    (document.documentElement.getAttribute("data-theme") !== "light" && mqlDark());
+  var m = document.getElementById("meta-theme-color");
+  if (m) m.setAttribute("content", effDark ? dark : light);
+})();`;
+---
+<script is:inline set:html={themeScript} />

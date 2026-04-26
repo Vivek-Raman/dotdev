@@ -1,0 +1,91 @@
+---
+import { ClientRouter } from "astro:transitions";
+// @ts-expect-error `fade` is exported from astro:transitions at build time; types resolve via dist/transitions.
+import { fade } from "astro:transitions";
+import "../../styles.css";
+import { THEME } from "../../config/theme";
+import ThemeInit from "../ThemeInit.astro";
+import PostHog from "../PostHog.astro";
+import SiteTopNav from "./SiteTopNav.astro";
+import SiteFooter from "./SiteFooter.astro";
+
+const pageTransition = fade({ duration: 400 });
+
+type BreadcrumbItem = { href?: string; label: string };
+
+interface Props {
+  pageTitle: string;
+  description: string;
+  includeOpenGraph?: boolean;
+  ogType?: string;
+  canonicalUrl?: string;
+  wrapperClass: string;
+  siteName?: string;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const {
+  pageTitle,
+  description,
+  includeOpenGraph = true,
+  ogType = "website",
+  canonicalUrl,
+  wrapperClass,
+  siteName,
+  breadcrumbs,
+} = Astro.props;
+
+/** Latin / near-first-paint; rest load via @font-face when needed. */
+const fontPreloads: string[] = [
+  "/fonts/QGYvz_MVcBeNP4NJtEtqUYLknw.woff2",
+  "/fonts/QGYvz_MVcBeNP4NJuktqUYLkn8BJ.woff2",
+  "/fonts/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxC9TeP2Xz5c.woff2",
+  "/fonts/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxCBTeP2Xz5fU8w.woff2",
+  "/fonts/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxCFTeP2Xz5fU8w.woff2",
+  "/fonts/6NUs8FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChJdt9hFwpX9W37ll9_mv0iQublWII.woff2",
+  "/fonts/6NUs8FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChJdt9hFwpX9W37ll9_mvIiQublWIIkfg.woff2",
+  "/fonts/6NUs8FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChJdt9hFwpX9W37ll9_mvMiQublWIIkfg.woff2",
+  "/fonts/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+  "/fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+  "/fonts/-F6pfjptAgt5VM-kVkqdyU8n1ioa1XdgregdFA.woff2",
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    {
+      fontPreloads.map((href) => (
+        <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+      ))
+    }
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={THEME.colorDark} id="meta-theme-color" />
+    <ThemeInit />
+    {
+      includeOpenGraph && (
+        <>
+          <meta property="og:title" content={pageTitle} />
+          <meta property="og:description" content={description} />
+          <meta property="og:type" content={ogType} />
+        </>
+      )
+    }
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    <title>{pageTitle}</title>
+    <ClientRouter />
+    <PostHog />
+    <slot name="head" />
+  </head>
+  <body>
+    <SiteTopNav siteName={siteName} breadcrumbs={breadcrumbs} />
+    <div class="site-content-shell">
+      <div class={wrapperClass} transition:animate={pageTransition}>
+        <slot />
+      </div>
+    </div>
+    <SiteFooter />
+  </body>
+</html>

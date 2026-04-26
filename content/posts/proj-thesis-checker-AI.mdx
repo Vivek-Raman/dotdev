@@ -3,17 +3,36 @@ title: Thesis Checker AI
 slug: thesis-checker-ai
 # heroImage:
 description: >-
-  AI-powered thesis tool developed for San Jose State.
+  AI-powered thesis formatting tool developed for San José State.
 tags:
   - project
   - artificial-intelligence
   - langchain
   - react
 added: "August 27, 2025"
-updated: "August 27, 2025"
+updated: "March 20, 2026"
 hidden: true
+featuredOrder: 2
 ---
 
-# test
+# Background
 
-Alongside
+During my second semester at San José State University, the College of Graduate Studies department was put in touch with me regarding a software project.
+Their editors were facing trouble with the volume of reports they had to verify for formatting errors.
+Specifically, the delays introduced by going back and forth with students due to formatting mistakes caused delays in schedule with the publishers.
+
+After a couple of brainstorming sessions, the proposal was to build a tool that could take student submissions and enforce formatting rules upon it.
+The requirements were:
+- Taking a students'
+- Input data would mostly be PDF, unfortunately.
+- Extracting the information and recreating the document was the only solution I could see.
+
+# Architecture
+
+- I built a full-stack application in Next.js
+
+# Challenges
+
+- Direct OCR on the PDF yielded inconsistent results, especially with pictures or illustrations containing text.
+- RAG was way better for this problem, but it was still not perfect.
+

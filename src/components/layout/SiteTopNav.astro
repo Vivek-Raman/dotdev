@@ -1,0 +1,46 @@
+---
+import NavLink from "../NavLink.astro";
+import ThemeControl from "../ThemeControl.astro";
+
+export interface BreadcrumbItem {
+  href?: string;
+  label: string;
+}
+
+interface Props {
+  siteName?: string;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const { siteName = "Vivek Raman", breadcrumbs = [] } = Astro.props;
+---
+
+<header class="site-top-nav" transition:name="site-top-nav" transition:animate="none">
+  <div class="site-top-nav__frost" aria-hidden="true"></div>
+  <div class="site-top-nav__inner">
+    <div class="site-top-nav__start">
+      <NavLink class="site-top-nav__brand" href="/">{siteName}</NavLink>
+      {
+        breadcrumbs.length > 0 && (
+          <nav class="site-top-nav__crumbs" aria-label="Breadcrumb">
+            <ol class="site-top-nav__crumb-list">
+              {breadcrumbs.map((item) => (
+                <li class="site-top-nav__crumb-item">
+                  <span class="site-top-nav__crumb-sep" aria-hidden="true">/</span>
+                  {item.href ? (
+                    <NavLink class="site-top-nav__crumb-link" href={item.href}>
+                      {item.label}
+                    </NavLink>
+                  ) : (
+                    <span class="site-top-nav__crumb-current">{item.label}</span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+    </div>
+    <ThemeControl />
+  </div>
+</header>
