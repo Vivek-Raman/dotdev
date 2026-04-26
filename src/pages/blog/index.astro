@@ -1,84 +1,71 @@
 ---
-import { getCollection } from "astro:content";
-import Post from "../../components/blog/Post.astro";
-import Tags from "../../components/blog/Tags.astro";
-import RootLayout from "../../layouts/RootLayout.astro";
-import getTags from "../../scripts/getTags";
+import SiteLayout from "../../components/layout/SiteLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
 
-let allPosts = await getCollection("posts");
-let posts = allPosts.filter((post) => !post.data.hidden);
-const tags = getTags(posts);
-
-posts = posts.sort(
-  (a, b) =>
-    new Date(b.data.updated || b.data.added).valueOf() -
-    new Date(a.data.updated || a.data.added).valueOf()
-);
-
-const taggedPosts = posts.reduce((allTags, post) => {
-  const postTags = post.data.tags;
-  if (postTags) {
-    postTags.forEach((tag) => {
-      if (!allTags[tag]) {
-        allTags[tag] = [];
-      }
-      allTags[tag].push(post);
-    });
+function dateSortKey(added: string | Date) {
+  if (typeof added === "string") {
+    const t = Date.parse(added);
+    return Number.isNaN(t) ? 0 : t;
   }
-  return allTags;
-}, {});
+  return added.getTime();
+}
+
+const all: CollectionEntry<"posts">[] = await getCollection("posts", ({ data }) => !data.hidden);
+
+const featured = all
+  .filter((p) => p.data.featuredOrder != null)
+  .sort((a, b) => (a.data.featuredOrder ?? 0) - (b.data.featuredOrder ?? 0));
+
+const rest = all
+  .filter((p) => p.data.featuredOrder == null)
+  .sort((a, b) => dateSortKey(b.data.added) - dateSortKey(a.data.added));
+
+const pageTitle = "Blog — Vivek Raman";
+const description = "Write-ups, case studies, and notes on software and projects.";
 ---
 
-<RootLayout titlePrefix="Blog" description="Blog - Vivek Raman">
-  <content>
-    <ul class="tags-list">
-      {
-        posts.map(({ url, data: { description, slug, title, tags, added: date } }) => (
-          <Post
-            {url}
-            {description}
-            {date}
-            {slug}
-            {title}
-            tags={tags.filter((t) => t !== "project")}
-          />
-        ))
-      }
-    </ul>
-  </content>
-</RootLayout>
+<SiteLayout
+  pageTitle={pageTitle}
+  description={description}
+  wrapperClass="blog-index"
+  breadcrumbs={[{ href: "/blog", label: "Blog" }]}
+>
+  <header class="blog-index__header">
+    <p class="blog-index__eyebrow">Writing</p>
+    <h1 class="blog-index__title">Vivek's Blog</h1>
+    <p class="blog-index__lede">Write-ups, projects, and opinion pieces talking about my journey through software development and AI.</p>
+  </header>
 
-<Tags tags={tags} all />
-<br />
-
-<p class="center">
-  You can also <a href="/rss.xml">subscribe with RSS</a>!
-</p>
-
-<style>
-  content {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    gap: 2rem;
+  {
+    featured.length > 0 && (
+      <section class="blog-index__section" aria-labelledby="blog-featured-heading">
+        <h2 id="blog-featured-heading" class="blog-index__section-title">
+          Featured
+        </h2>
+        <ul class="featured__grid">
+          {featured.map((entry, i) => (
+            <PostCard entry={entry} stagger={i} accentOnHover />
+          ))}
+        </ul>
+      </section>
+    )
   }
 
-  content > div {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  @media (max-width: 1024px) {
-    content {
-      flex-direction: column;
-      flex-wrap: nowrap;
-    }
-
-    content > div {
-      flex: 1 1 100%;
-      width: 100%;
-    }
-  }
-</style>
+  {rest.length === 0 && featured.length === 0 ? (
+    <section class="blog-index__section" aria-label="Status">
+      <p class="blog-index__empty">No posts published yet.</p>
+    </section>
+  ) : rest.length > 0 ? (
+    <section class="blog-index__section" aria-labelledby="blog-archive-heading">
+      <h2 id="blog-archive-heading" class="blog-index__section-title">
+        {featured.length > 0 ? "All posts" : "Posts"}
+      </h2>
+      <ul class="featured__grid">
+        {rest.map((entry, i) => (
+          <PostCard entry={entry} stagger={i + featured.length} accentOnHover />
+        ))}
+      </ul>
+    </section>
+  ) : null}
+</SiteLayout>

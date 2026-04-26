@@ -1,0 +1,58 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+const TAG_SKIP = new Set(["project", "blog", "work", "research", "sjsu", "university", "public-speaking"]);
+
+interface Props {
+  entry: CollectionEntry<"posts">;
+  stagger?: number;
+  /** Left accent bar (blog index): visible on hover/focus only */
+  accentOnHover?: boolean;
+}
+
+const tagForDisplay = (tags: string[]) => tags.filter((t) => !TAG_SKIP.has(t)).slice(0, 5);
+
+const { entry, stagger = 0, accentOnHover = false } = Astro.props;
+const { title, description, heroImage, thumbnail, slug, tags } = entry.data;
+const heroSrc = heroImage ?? thumbnail ?? null;
+const displayTags = tagForDisplay(tags);
+---
+
+<li class="featured__item" style={`--stagger: ${stagger}`}>
+  <a
+    class:list={["featured__card", accentOnHover && "featured__card--accent-hover"]}
+    href={`/blog/${slug}`}
+  >
+    <div class="featured__card-inner">
+      {heroSrc ? (
+        <div class="featured__media" aria-hidden="true">
+          <img
+            class="featured__img"
+            src={heroSrc}
+            alt=""
+            width="640"
+            height="360"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      ) : (
+        <div class="featured__media featured__media--empty" aria-hidden="true" />
+      )}
+      <div class="featured__body">
+        <h3 class="featured__name">{title}</h3>
+        <p class="featured__desc">{description}</p>
+        {displayTags.length > 0 && (
+          <ul class="featured__tags">
+            {displayTags.map((t) => (
+              <li>
+                <span class="featured__tag">{t.replaceAll("-", " ")}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <span class="featured__cta">Read the write-up</span>
+      </div>
+    </div>
+  </a>
+</li>

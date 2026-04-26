@@ -1,9 +1,19 @@
 ---
-import About from "../../../content/about/about-me.mdx";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../config";
-import RootLayout from "../../layouts/RootLayout.astro";
+import SiteLayout from "../../components/layout/SiteLayout.astro";
+import AboutContent from "../../../content/about/about-me.mdx";
+
+const pageTitle = "About — Vivek Raman";
+const description =
+  "Background, academics, skills, and how to get in touch — software engineer and CS graduate student.";
 ---
 
-<RootLayout titlePrefix="About">
-  <About />
-</RootLayout>
+<SiteLayout
+  pageTitle={pageTitle}
+  description={description}
+  wrapperClass="post-layout"
+  breadcrumbs={[{ label: "About" }]}
+>
+  <article class="prose prose-article" aria-label="About">
+    <AboutContent />
+  </article>
+</SiteLayout>

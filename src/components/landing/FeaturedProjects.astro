@@ -1,0 +1,39 @@
+---
+import { Icon } from "astro-icon/components";
+import { getCollection, type CollectionEntry } from "astro:content";
+import PostCard from "../PostCard.astro";
+
+const all: CollectionEntry<"posts">[] = await getCollection("posts");
+const featured = all
+  .filter(({ data }) => !data.hidden && data.featuredOrder != null)
+  .sort((a, b) => (a.data.featuredOrder ?? 0) - (b.data.featuredOrder ?? 0));
+---
+
+<section class="featured" id="featured" aria-labelledby="featured-heading">
+  <div class="featured__head">
+    <h2 id="featured-heading" class="featured__title">Blog posts</h2>
+    <p class="featured__lede">
+      Case studies and side projects, newest intent first on the list below.
+      <a class="featured__all" href="/blog">
+        <span class="featured__all-label">View all</span>
+        <Icon name="lucide:arrow-right" class="featured__all-icon" aria-hidden="true" />
+      </a>
+    </p>
+  </div>
+
+  {
+    featured.length === 0 ? (
+      <p class="featured__empty">No featured projects yet. Add <code>featuredOrder</code> in post frontmatter.</p>
+    ) : (
+      <ul class="featured__grid">
+        {featured.map((entry, i) => (
+          <PostCard entry={entry} stagger={i} />
+        ))}
+      </ul>
+    )
+  }
+
+  <div class="featured__footer">
+    <a class="hero__link hero__link--ghost" href="/blog">Read more</a>
+  </div>
+</section>
