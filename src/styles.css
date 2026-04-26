@@ -152,17 +152,15 @@ body::before {
 
 .landing__pattern {
   position: absolute;
-  width: min(115vw, 72rem);
-  max-width: none;
   pointer-events: none;
   z-index: 0;
 }
 
 .landing__pattern--hero {
-  left: 50%;
-  translate: -50% 0;
-
   top: calc(-1 * (2.75rem + 0.65rem + 0.65rem + env(safe-area-inset-top, 0px)));
+  left: 0;
+  right: 0;
+  width: auto;
 }
 
 .landing__pattern--footer {
