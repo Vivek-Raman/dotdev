@@ -1035,28 +1035,29 @@ img.img-70p {
   vertical-align: -0.28em;
 }
 
-.tech-logo .icon-light {
+/* svg.* so these beat `.prose .tech-logo svg { display }` (same specificity, later wins). */
+.tech-logo svg.icon-light {
   display: none;
 }
 
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .tech-logo .icon-dark {
+  :root:not([data-theme]) .tech-logo svg.icon-dark {
     display: none;
   }
-  :root:not([data-theme]) .tech-logo .icon-light {
+  :root:not([data-theme]) .tech-logo svg.icon-light {
     display: inline-block;
   }
 }
-:root[data-theme="light"] .tech-logo .icon-dark {
+:root[data-theme="light"] .tech-logo svg.icon-dark {
   display: none;
 }
-:root[data-theme="light"] .tech-logo .icon-light {
+:root[data-theme="light"] .tech-logo svg.icon-light {
   display: inline-block;
 }
-:root[data-theme="dark"] .tech-logo .icon-dark {
+:root[data-theme="dark"] .tech-logo svg.icon-dark {
   display: inline-block;
 }
-:root[data-theme="dark"] .tech-logo .icon-light {
+:root[data-theme="dark"] .tech-logo svg.icon-light {
   display: none;
 }
 
