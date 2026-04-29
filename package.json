@@ -25,6 +25,8 @@
     "@iconify-json/skill-icons": "^1.2.4",
     "astro-icon": "^1.1.5",
     "astro-lazy-youtube-embed": "^0.5.5",
+    "mdast-util-to-string": "^4.0.0",
+    "reading-time": "^1.5.0",
     "typescript": "^5.9.3"
   }
 }
