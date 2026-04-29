@@ -2,6 +2,7 @@ Sitemap: https://vivekraman.dev/sitemap-index.xml
 
 User-agent: *
 Disallow:
+Content-Signal: ai-train=no, search=yes, ai-input=no
 
 User-agent: AdsBot-Google
 User-agent: Amazonbot

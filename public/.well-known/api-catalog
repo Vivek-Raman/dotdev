@@ -1,0 +1,12 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://vivekraman.dev/.well-known/api-catalog",
+      "item": [
+        {
+          "href": "https://vivekraman.dev/sitemap-index.xml"
+        }
+      ]
+    }
+  ]
+}
