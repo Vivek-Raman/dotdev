@@ -45,7 +45,7 @@ const description = "Write-ups, case studies, and notes on software and projects
         </h2>
         <ul class="featured__grid">
           {featured.map((entry, i) => (
-            <PostCard entry={entry} stagger={i} accentOnHover />
+            <PostCard entry={entry} stagger={i} />
           ))}
         </ul>
       </section>
@@ -63,7 +63,7 @@ const description = "Write-ups, case studies, and notes on software and projects
       </h2>
       <ul class="featured__grid">
         {rest.map((entry, i) => (
-          <PostCard entry={entry} stagger={i + featured.length} accentOnHover />
+          <PostCard entry={entry} stagger={i + featured.length} />
         ))}
       </ul>
     </section>

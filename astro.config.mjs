@@ -2,6 +2,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
+import mermaid from "astro-mermaid";
 
 export default defineConfig({
   site: "https://vivekraman.dev",
@@ -12,6 +13,11 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap(),
+    mermaid({
+      theme: "forest",
+      autoTheme: true,
+      mermaidConfig: {},
+    }),
     icon({
       include: {
         lucide: ["arrow-right"],
@@ -62,6 +68,8 @@ export default defineConfig({
           "mongodb",
           "mysql-light",
           "mysql-dark",
+          "nextjs-light",
+          "nextjs-dark",
           "nodejs-light",
           "nodejs-dark",
           "nginx",
@@ -83,6 +91,7 @@ export default defineConfig({
           "svelte",
           "tensorflow-light",
           "tensorflow-dark",
+          "typescript",
           "unity-light",
           "unity-dark",
           "vercel-light",
@@ -96,11 +105,13 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: {
-      theme: {
-        light: "material-theme-lighter",
-        dark: "material-theme-darker",
+      themes: {
+        light: "catppuccin-latte",
+        dark: "catppuccin-mocha",
       },
+      defaultColor: "light-dark()",
       langs: [],
+      wrap: true,
     },
   },
 });

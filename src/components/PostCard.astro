@@ -6,13 +6,11 @@ const TAG_SKIP = new Set(["project", "blog", "work", "research", "sjsu", "univer
 interface Props {
   entry: CollectionEntry<"posts">;
   stagger?: number;
-  /** Left accent bar (blog index): visible on hover/focus only */
-  accentOnHover?: boolean;
 }
 
 const tagForDisplay = (tags: string[]) => tags.filter((t) => !TAG_SKIP.has(t)).slice(0, 5);
 
-const { entry, stagger = 0, accentOnHover = false } = Astro.props;
+const { entry, stagger = 0 } = Astro.props;
 const { title, description, heroImage, thumbnail, slug, tags } = entry.data;
 const heroSrc = heroImage ?? thumbnail ?? null;
 const displayTags = tagForDisplay(tags);
@@ -20,7 +18,7 @@ const displayTags = tagForDisplay(tags);
 
 <li class="featured__item" style={`--stagger: ${stagger}`}>
   <a
-    class:list={["featured__card", accentOnHover && "featured__card--accent-hover"]}
+    class="featured__card"
     href={`/blog/${slug}/`}
   >
     <div class="featured__card-inner">

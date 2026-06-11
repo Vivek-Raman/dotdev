@@ -1,16 +1,20 @@
 ---
 import HeroPattern from "../landing/HeroPattern.astro";
 import NavLink from "../NavLink.astro";
+import pkg from "../../../package.json";
 
-const year = new Date().getFullYear();
+const version = pkg.version;
 ---
 
 <footer class="landing__footer">
   <HeroPattern variant="footer" />
   <div class="landing__footer-inner">
-    <span>© {year} Vivek Raman</span>
+    <NavLink href="/"> Vivek Raman</NavLink>
     <NavLink href="/">Home</NavLink>
     <NavLink href="/about/">About</NavLink>
     <NavLink href="/blog/">Blog</NavLink>
   </div>
+  <div class="landing__footer-inner">
+    <a href={`https://github.com/Vivek-Raman/dotdev/tree/${version}`} target="_blank">v{version}</a>
+
 </footer>
