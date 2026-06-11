@@ -1,4 +1,5 @@
 import mdx from "@astrojs/mdx";
+import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
@@ -21,7 +22,7 @@ export default defineConfig({
     icon({
       include: {
         lucide: ["arrow-right"],
-        "simple-icons": ["langchain"],
+        "simple-icons": ["langchain", "posthog"],
         "skill-icons": [
           "appwrite",
           "astro",
@@ -104,6 +105,7 @@ export default defineConfig({
     }),
   ],
   markdown: {
+    processor: unified(),
     shikiConfig: {
       themes: {
         light: "catppuccin-latte",
