@@ -4,7 +4,6 @@ import NavLink from "../NavLink.astro";
 import pkg from "../../../package.json";
 
 const version = pkg.version;
-const foo = import.meta.env.PUBLIC_FOO;
 ---
 
 <footer class="landing__footer">
@@ -16,8 +15,7 @@ const foo = import.meta.env.PUBLIC_FOO;
     <NavLink href="/blog/">Blog</NavLink>
   </div>
   <div class="landing__footer-inner">
-    <a href={`https://github.com/Vivek-Raman/dotdev/tree/${version}`} target="_blank">
+    <a href={`https://github.com/Vivek-Raman/dotdev/tree/v${version}`} target="_blank">
       dotdev@v{version}
     </a>
-    <span>foo: {foo}</span>
 </footer>

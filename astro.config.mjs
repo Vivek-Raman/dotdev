@@ -4,6 +4,7 @@ import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import mermaid from "astro-mermaid";
+import posthog from "astro-posthog";
 
 export default defineConfig({
   site: "https://vivekraman.dev",
@@ -102,6 +103,10 @@ export default defineConfig({
           "xd",
         ],
       },
+    }),
+    posthog({
+      posthogKey: import.meta.env.POSTHOG_KEY,
+      defaults: "2026-05-30",
     }),
   ],
   markdown: {

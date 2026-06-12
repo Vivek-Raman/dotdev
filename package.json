@@ -1,6 +1,6 @@
 {
   "name": "vivekraman.dev",
-  "version": "5.1-rc4",
+  "version": "5.1-rc5",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -26,6 +26,7 @@
     "astro-icon": "^1.1.5",
     "astro-lazy-youtube-embed": "^0.5.5",
     "astro-mermaid": "^2.0.2",
+    "astro-posthog": "^1.0.2",
     "mdast-util-to-string": "^4.0.0",
     "mermaid": "^11.15.0",
     "reading-time": "^1.5.0",
