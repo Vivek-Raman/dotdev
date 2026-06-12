@@ -1228,7 +1228,7 @@ img.img-70p {
   color: inherit;
   border-radius: var(--radius);
   background: var(--color-surface-2);
-  border: 1px solid var(--color-stroke);
+  border: 1px solid transparent;
   box-shadow: var(--shadow-soft);
   transition:
     border-color 0.2s ease,
@@ -1236,8 +1236,7 @@ img.img-70p {
     transform 0.25s ease;
 }
 
-.featured__card:hover,
-.featured__card:focus-visible {
+.featured__card:hover {
   border-color: var(--color-accent);
   box-shadow: var(--shadow-lift);
   transform: translateY(-2px);
@@ -1246,6 +1245,8 @@ img.img-70p {
 .featured__card:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
 }
 
 .featured__card-inner {

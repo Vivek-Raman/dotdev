@@ -1,0 +1,12 @@
+---
+description: Skip browser-based verification unless explicitly requested
+alwaysApply: true
+---
+
+# No Browser Verification
+
+Do not open, navigate, or verify changes in a browser unless the user explicitly asks for it.
+
+- Do not use browser automation, MCP browser tools, or screenshots to confirm UI work.
+- Rely on code review, static analysis, lints, and tests instead.
+- If visual confirmation would help, describe what to check rather than opening a browser yourself.

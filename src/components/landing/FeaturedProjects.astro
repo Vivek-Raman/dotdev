@@ -21,17 +21,11 @@ const featured = all
     </p>
   </div>
 
-  {
-    featured.length === 0 ? (
-      <p class="featured__empty">No featured projects yet. Add <code>featuredOrder</code> in post frontmatter.</p>
-    ) : (
-      <ul class="featured__grid">
-        {featured.map((entry, i) => (
-          <PostCard entry={entry} stagger={i} />
-        ))}
-      </ul>
-    )
-  }
+  <ul class="featured__grid">
+    {featured.map((entry, i) => (
+      <PostCard entry={entry} stagger={i} />
+    ))}
+  </ul>  
 
   <div class="featured__footer">
     <a class="hero__link hero__link--ghost" href="/blog/">Read more</a>
