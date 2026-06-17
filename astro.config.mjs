@@ -16,7 +16,7 @@ export default defineConfig({
     mdx(),
     sitemap(),
     mermaid({
-      theme: "forest",
+      theme: "base",
       autoTheme: true,
       mermaidConfig: {},
     }),
@@ -105,8 +105,9 @@ export default defineConfig({
       },
     }),
     posthog({
-      posthogKey: import.meta.env.POSTHOG_KEY,
+      posthogKey: "$!{{{POSTHOG_KEY}}}",
       defaults: "2026-05-30",
+      api_host: "/gobble",
     }),
   ],
   markdown: {
