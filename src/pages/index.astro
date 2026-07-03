@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import SiteLayout from "../components/layout/SiteLayout.astro";
 import FeaturedProjects from "../components/landing/FeaturedProjects.astro";
+import LatestPosts from "../components/landing/LatestPosts.astro";
 import HeroPattern from "../components/landing/HeroPattern.astro";
 import LandingContent from "../../content/landing-page.mdx";
 
@@ -14,25 +15,26 @@ const description =
   <HeroPattern />
   <main class="landing__main">
     <header class="hero">
-      <p class="hero__eyebrow">Portfolio</p>
-      <h1 class="hero__name">Vivek Raman<br/><em>software engineer</em></h1>
+      <h1 class="hero__name">Vivek Raman<br /><em>software engineer</em></h1>
       <p class="hero__sub">
-        Architecting high-scale systems and orchestrating the future of agentic AI.
-        Currently seeking full-time opportunities to create software that moves the world.
+        Architecting high-scale systems and orchestrating the future of agentic AI. Currently
+        seeking full-time opportunities to create software that moves the world.
       </p>
       <div class="hero__actions">
         <a class="hero__link" href="/resume/">
           View résumé
           <Icon name="lucide:arrow-right" aria-hidden="true" />
         </a>
+        <a class="hero__link hero__link--ghost" href="/blog/">Read the blog</a>
         <a class="hero__link hero__link--ghost" href="/about/">More about me</a>
       </div>
-
     </header>
     <hr class="landing__rule" />
     <section class="prose landing__prose" aria-label="Introduction">
       <LandingContent />
     </section>
+    <hr class="landing__rule" />
+    <LatestPosts />
     <hr class="landing__rule" />
     <FeaturedProjects />
   </main>

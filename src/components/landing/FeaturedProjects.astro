@@ -22,10 +22,8 @@ const featured = all
   </div>
 
   <ul class="featured__grid">
-    {featured.map((entry, i) => (
-      <PostCard entry={entry} stagger={i} />
-    ))}
-  </ul>  
+    {featured.map((entry, i) => <PostCard entry={entry} stagger={i} />)}
+  </ul>
 
   <div class="featured__footer">
     <a class="hero__link hero__link--ghost" href="/blog/">Read more</a>

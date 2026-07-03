@@ -1,0 +1,41 @@
+---
+import { Icon } from "astro-icon/components";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+function dateSortKey(added: string | Date) {
+  if (typeof added === "string") {
+    const t = Date.parse(added);
+    return Number.isNaN(t) ? 0 : t;
+  }
+  return added.getTime();
+}
+
+function fmtDate(added: string | Date) {
+  const d = typeof added === "string" ? new Date(added) : added;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+const all: CollectionEntry<"posts">[] = await getCollection("posts", ({ data }) => !data.hidden);
+const recent = all
+  .sort((a, b) => dateSortKey(b.data.added) - dateSortKey(a.data.added))
+  .slice(0, 3);
+---
+
+<section class="landing-latest" aria-labelledby="latest-heading">
+  <h2 id="latest-heading" class="landing-latest__title">Latest posts</h2>
+  <ul class="landing-latest__list">
+    {recent.map(({ data }) => (
+      <li class="landing-latest__item">
+        <a class="landing-latest__link" href={`/blog/${data.slug}/`}>
+          <span class="landing-latest__date">{fmtDate(data.added)}</span>
+          <span class="landing-latest__name">{data.title}</span>
+          <span class="landing-latest__desc">{data.description}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <a class="landing-latest__all" href="/blog/">
+    View all posts
+    <Icon name="lucide:arrow-right" aria-hidden="true" />
+  </a>
+</section>
