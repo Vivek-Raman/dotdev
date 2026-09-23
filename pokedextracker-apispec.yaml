@@ -1,0 +1,895 @@
+basePath: /api
+consumes:
+  - application/json
+definitions:
+  auth.TokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  auth.createParams:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+      - password
+      - username
+    type: object
+  captures.Capture:
+    properties:
+      captured:
+        type: boolean
+      dex_id:
+        type: integer
+      pokemon:
+        $ref: "#/definitions/pokemoncaptures.Pokemon"
+    type: object
+  captures.createParams:
+    properties:
+      dex:
+        type: integer
+      pokemon:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+      - dex
+      - pokemon
+    type: object
+  captures.deleteParams:
+    properties:
+      dex:
+        type: integer
+      pokemon:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+      - dex
+      - pokemon
+    type: object
+  dexes.Dex:
+    properties:
+      caught:
+        type: integer
+      date_created:
+        type: string
+      date_modified:
+        type: string
+      dex_type:
+        $ref: "#/definitions/dextypes.DexType"
+      game:
+        $ref: "#/definitions/games.Game"
+      id:
+        type: integer
+      regional:
+        type: boolean
+      shiny:
+        type: boolean
+      slug:
+        type: string
+      title:
+        type: string
+      total:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  dexes.createParams:
+    properties:
+      dex_type:
+        type: integer
+      game:
+        maxLength: 50
+        type: string
+      shiny:
+        type: boolean
+      slug:
+        maxLength: 300
+        type: string
+      title:
+        maxLength: 300
+        type: string
+    required:
+      - dex_type
+      - game
+      - shiny
+      - title
+    type: object
+  dexes.updateParams:
+    properties:
+      dex_type:
+        type: integer
+      game:
+        maxLength: 50
+        type: string
+      shiny:
+        type: boolean
+      slug:
+        maxLength: 300
+        type: string
+      title:
+        maxLength: 300
+        type: string
+    type: object
+  dextypes.DexType:
+    properties:
+      base_dex_type:
+        $ref: "#/definitions/dextypes.DexType"
+      base_dex_type_id:
+        type: integer
+      description:
+        type: string
+      game_family_id:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      order:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  dextypes.errorResponse:
+    properties:
+      error:
+        $ref: "#/definitions/errcodes.ResponseDetail"
+    type: object
+  errcodes.DeletedResponse:
+    properties:
+      deleted:
+        type: boolean
+    type: object
+  errcodes.Response:
+    properties:
+      error:
+        $ref: "#/definitions/errcodes.ResponseDetail"
+    type: object
+  errcodes.ResponseDetail:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      status_code:
+        type: integer
+    type: object
+  games.Game:
+    properties:
+      game_family:
+        $ref: "#/definitions/games.GameFamily"
+      id:
+        type: string
+      name:
+        type: string
+      order:
+        type: integer
+    type: object
+  games.GameFamily:
+    properties:
+      generation:
+        type: integer
+      id:
+        type: string
+      national_support:
+        type: boolean
+      national_total:
+        type: integer
+      order:
+        type: integer
+      published:
+        type: boolean
+      regional_support:
+        type: boolean
+      regional_total:
+        type: integer
+    type: object
+  games.errorResponse:
+    properties:
+      error:
+        $ref: "#/definitions/errcodes.ResponseDetail"
+    type: object
+  main.healthErrorResponse:
+    properties:
+      error:
+        $ref: "#/definitions/errcodes.ResponseDetail"
+    type: object
+  main.healthResponse:
+    properties:
+      healthy:
+        type: boolean
+    type: object
+  pokemon.Evolution:
+    properties:
+      candy_count:
+        type: integer
+      held_item:
+        type: string
+      level:
+        type: integer
+      notes:
+        type: string
+      stone:
+        type: string
+      trigger:
+        type: string
+    type: object
+  pokemon.EvolutionFamily:
+    properties:
+      evolutions:
+        items:
+          items:
+            $ref: "#/definitions/pokemon.Evolution"
+          type: array
+        type: array
+      pokemon:
+        items:
+          items:
+            $ref: "#/definitions/pokemon.EvolutionPokemon"
+          type: array
+        type: array
+    type: object
+  pokemon.EvolutionPokemon:
+    properties:
+      form:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      national_id:
+        type: integer
+    type: object
+  pokemon.Location:
+    properties:
+      game:
+        $ref: "#/definitions/games.Game"
+      value:
+        items:
+          type: string
+        type: array
+      values:
+        items:
+          type: string
+        type: array
+    type: object
+  pokemon.Pokemon:
+    properties:
+      box:
+        type: string
+      dex_number:
+        type: integer
+      evolution_family:
+        $ref: "#/definitions/pokemon.EvolutionFamily"
+      form:
+        type: string
+      game_family:
+        $ref: "#/definitions/games.GameFamily"
+      id:
+        type: integer
+      locations:
+        items:
+          $ref: "#/definitions/pokemon.Location"
+        type: array
+      name:
+        type: string
+      national_id:
+        type: integer
+    type: object
+  pokemoncaptures.Pokemon:
+    properties:
+      box:
+        type: string
+      dex_number:
+        type: integer
+      form:
+        type: string
+      game_family:
+        $ref: "#/definitions/games.GameFamily"
+      id:
+        type: integer
+      name:
+        type: string
+      national_id:
+        type: integer
+    type: object
+  users.User:
+    properties:
+      date_created:
+        type: string
+      date_modified:
+        type: string
+      dexes:
+        items:
+          $ref: "#/definitions/dexes.Dex"
+        type: array
+      donated:
+        type: boolean
+      friend_code_3ds:
+        type: string
+      friend_code_switch:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  users.createParams:
+    properties:
+      dex_type:
+        type: integer
+      friend_code_3ds:
+        type: string
+      friend_code_switch:
+        type: string
+      game:
+        maxLength: 50
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+      referrer:
+        type: string
+      shiny:
+        type: boolean
+      slug:
+        maxLength: 300
+        type: string
+      title:
+        maxLength: 300
+        type: string
+      username:
+        maxLength: 20
+        type: string
+    required:
+      - dex_type
+      - game
+      - password
+      - shiny
+      - title
+      - username
+    type: object
+  users.updateParams:
+    properties:
+      friend_code_3ds:
+        type: string
+      friend_code_switch:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+    type: object
+host: pokedextracker.com
+info:
+  contact: {}
+  description: API for pokedextracker.com.
+  title: Pokedex Tracker API
+  version: "1.0"
+paths:
+  /captures:
+    delete:
+      parameters:
+        - description: Captures
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/captures.deleteParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/errcodes.DeletedResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      security:
+        - BearerAuth: []
+      summary: Unmark captured Pokemon
+      tags:
+        - captures
+    post:
+      parameters:
+        - description: Captures
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/captures.createParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/captures.Capture"
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      security:
+        - BearerAuth: []
+      summary: Mark Pokemon captured
+      tags:
+        - captures
+  /dex-types:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/dextypes.DexType"
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/dextypes.errorResponse"
+      summary: List dex types
+      tags:
+        - dex-types
+  /games:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/games.Game"
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/games.errorResponse"
+      summary: List games
+      tags:
+        - games
+  /health:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.healthResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.healthErrorResponse"
+      summary: Check API health
+      tags:
+        - health
+  /pokemon/{id}:
+    get:
+      parameters:
+        - description: Pokemon ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Dex type ID
+          in: query
+          name: dex_type
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/pokemon.Pokemon"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: Get a Pokemon
+      tags:
+        - pokemon
+  /sessions:
+    post:
+      parameters:
+        - description: Credentials
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/auth.createParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/auth.TokenResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: Create a session
+      tags:
+        - sessions
+  /users:
+    get:
+      parameters:
+        - default: 10
+          description: Maximum results
+          in: query
+          name: limit
+          type: integer
+        - default: 0
+          description: Results to skip
+          in: query
+          name: offset
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/users.User"
+            type: array
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: List users
+      tags:
+        - users
+    post:
+      parameters:
+        - description: User and initial dex
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/users.createParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/auth.TokenResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: Create a user
+      tags:
+        - users
+  /users/{username}:
+    get:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/users.User"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: Get a user
+      tags:
+        - users
+    post:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Fields to update
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/users.updateParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/auth.TokenResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      security:
+        - BearerAuth: []
+      summary: Update a user
+      tags:
+        - users
+  /users/{username}/dexes:
+    post:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Dex
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/dexes.createParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/dexes.Dex"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      security:
+        - BearerAuth: []
+      summary: Create a dex
+      tags:
+        - dexes
+  /users/{username}/dexes/{slug}:
+    delete:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Dex slug
+          in: path
+          name: slug
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/errcodes.DeletedResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      security:
+        - BearerAuth: []
+      summary: Delete a dex
+      tags:
+        - dexes
+    get:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Dex slug
+          in: path
+          name: slug
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/dexes.Dex"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: Get a dex
+      tags:
+        - dexes
+    post:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Dex slug
+          in: path
+          name: slug
+          required: true
+          type: string
+        - description: Fields to update
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/dexes.updateParams"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/dexes.Dex"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      security:
+        - BearerAuth: []
+      summary: Update a dex
+      tags:
+        - dexes
+  /users/{username}/dexes/{slug}/captures:
+    get:
+      parameters:
+        - description: Username
+          in: path
+          name: username
+          required: true
+          type: string
+        - description: Dex slug
+          in: path
+          name: slug
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/captures.Capture"
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/errcodes.Response"
+      summary: List captures
+      tags:
+        - captures
+produces:
+  - application/json
+schemes:
+  - https
+securityDefinitions:
+  BearerAuth:
+    description: "Enter a bearer token as: Bearer <token>"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

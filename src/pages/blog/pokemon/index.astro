@@ -1,0 +1,219 @@
+---
+import SiteLayout from "../../../components/layout/SiteLayout.astro";
+
+const pageTitle = "A very serious guide to choosing your first Pokémon — Vivek Raman";
+const description =
+  "Temporary Pokémon field notes with starter advice, route tips, and questionable data.";
+const canonical = new URL("blog/pokemon/", Astro.site ?? "https://vivekraman.dev");
+---
+
+<SiteLayout
+  pageTitle={pageTitle}
+  description={description}
+  includeOpenGraph={false}
+  canonicalUrl={canonical.href}
+  wrapperClass="post-layout"
+  breadcrumbs={[{ href: "/blog/", label: "Blog" }, { label: "Pokémon" }]}
+>
+  <article class="pokemon-blog prose prose-article" aria-labelledby="pokemon-blog-title">
+    <header class="pokemon-blog__header">
+      <p class="post-header__meta">Field notes · September 12, 2026</p>
+      <h1 id="pokemon-blog-title" class="post-header__title">
+        A very serious guide to choosing your first Pokémon
+      </h1>
+      <p class="pokemon-blog__dek">
+        A pocket-sized tour through routes, rival battles, and the small decisions that somehow become
+        a whole afternoon.
+      </p>
+      <div class="pokemon-blog__badge" aria-label="Placeholder article">Placeholder field guide</div>
+    </header>
+
+    <div class="pokemon-blog__body">
+      <p>
+        Every journey starts with the same question: do you want a warm lizard, a determined turtle,
+        or a seed-carrying frog with excellent posture? The right answer depends on your route, your
+        snacks, and how much patience you have for status effects.
+      </p>
+
+      <p>
+        This is a temporary collection of made-up notes for the Pokémon blog. The numbers are
+        suspicious, the rankings are personal, and the berry pie recipe still needs work.
+      </p>
+
+      <section aria-labelledby="starter-heading">
+        <h2 id="starter-heading">The starter decision</h2>
+        <div class="pokemon-blog__starter-grid">
+          <div class="pokemon-blog__starter-card">
+            <span class="pokemon-blog__type pokemon-blog__type--fire">Fire</span>
+            <h3>Emberling</h3>
+            <p>Small, warm, and likely to singe your backpack.</p>
+            <span class="pokemon-blog__stat">Best for: dramatic entrances</span>
+          </div>
+          <div class="pokemon-blog__starter-card">
+            <span class="pokemon-blog__type pokemon-blog__type--water">Water</span>
+            <h3>Shellbit</h3>
+            <p>Reliable in the rain and surprisingly good at finding shortcuts.</p>
+            <span class="pokemon-blog__stat">Best for: patient explorers</span>
+          </div>
+          <div class="pokemon-blog__starter-card">
+            <span class="pokemon-blog__type pokemon-blog__type--grass">Grass</span>
+            <h3>Spriglet</h3>
+            <p>Quietly confident, with a leaf that doubles as a tiny umbrella.</p>
+            <span class="pokemon-blog__stat">Best for: long routes</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="route-heading">
+        <h2 id="route-heading">A route worth wandering</h2>
+        <p>
+          Route 14 begins behind a bakery and ends somewhere near a lighthouse. Nobody agrees on the
+          exact distance. The useful landmarks are easier to remember:
+        </p>
+        <ol>
+          <li>Turn left when the windmill starts making a noise like a tired violin.</li>
+          <li>Rest beside the blue sign. The sign is not blue, but the bench is.</li>
+          <li>Save one Potion for the bridge and one snack for yourself.</li>
+        </ol>
+      </section>
+
+      <aside class="pokemon-blog__callout">
+        <strong>Field note 07</strong>
+        <p>
+          If your rival says they have a strategy, they probably have a Pidgey and a lot of
+          confidence.
+        </p>
+      </aside>
+
+      <section aria-labelledby="packing-heading">
+        <h2 id="packing-heading">The essential pack</h2>
+        <table>
+          <thead>
+            <tr><th scope="col">Item</th><th scope="col">Quantity</th><th scope="col">Reason</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Potion</td><td>4</td><td>For surprise grass</td></tr>
+            <tr><td>Repel</td><td>2</td><td>For focused walking</td></tr>
+            <tr><td>Berry bun</td><td>1</td><td>For morale</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <p class="pokemon-blog__signoff">More completely unverified field notes soon.</p>
+    </div>
+  </article>
+
+  <style>
+    .pokemon-blog {
+      max-width: min(var(--content-reading), 100%);
+      margin: 0 auto;
+      padding: var(--gap-below-topbar) var(--page-pad) 4rem;
+    }
+
+    .pokemon-blog__header {
+      padding: 0.5rem 0 1.75rem;
+      border-bottom: 1px solid var(--color-stroke);
+    }
+
+    .pokemon-blog__dek {
+      max-width: 48ch;
+      margin: 1rem 0 0;
+      color: var(--color-muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .pokemon-blog__badge {
+      display: inline-block;
+      margin-top: 1.25rem;
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--color-stroke);
+      border-radius: var(--radius-control);
+      color: var(--color-muted-2);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pokemon-blog__body {
+      padding-top: 2.25rem;
+    }
+
+    .pokemon-blog__starter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin: 1.25rem 0 2.5rem;
+    }
+
+    .pokemon-blog__starter-card {
+      min-width: 0;
+      padding: 1rem;
+      border: 1px solid var(--color-stroke);
+      border-radius: var(--radius-tight);
+      background: var(--color-surface-2);
+    }
+
+    .pokemon-blog__starter-card h3 {
+      margin: 0.75rem 0 0.35rem;
+    }
+
+    .pokemon-blog__starter-card p {
+      margin: 0 0 1rem;
+      font-size: 0.9rem;
+    }
+
+    .pokemon-blog__type,
+    .pokemon-blog__stat {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .pokemon-blog__type {
+      color: var(--color-muted-2);
+    }
+    .pokemon-blog__type--fire {
+      color: #c15b42;
+    }
+    .pokemon-blog__type--water {
+      color: #3b7ca8;
+    }
+    .pokemon-blog__type--grass {
+      color: #5f8b5b;
+    }
+    .pokemon-blog__stat {
+      color: var(--color-muted-2);
+    }
+
+    .pokemon-blog__callout {
+      margin: 2rem 0;
+      padding: 1rem 1.1rem;
+      border-left: 3px solid var(--color-accent);
+      background: var(--color-surface-2);
+    }
+
+    .pokemon-blog__callout strong {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .pokemon-blog__callout p {
+      margin: 0.45rem 0 0;
+    }
+    .pokemon-blog__signoff {
+      color: var(--color-muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 680px) {
+      .pokemon-blog__starter-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</SiteLayout>

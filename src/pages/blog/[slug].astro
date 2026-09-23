@@ -19,10 +19,11 @@ if (!post) {
 
 const { Content } = await render(post);
 const { title, description, added, updated, heroImage } = post.data;
+const addedLine = typeof added === "string" ? added : added.toLocaleDateString();
 const dateLine =
   updated != null
     ? `Updated ${typeof updated === "string" ? updated : updated.toLocaleDateString()}`
-    : `Added ${typeof added === "string" ? added : added.toLocaleDateString()}`;
+    : `Added ${addedLine}`;
 
 const pageTitle = `${title} — Vivek Raman`;
 const site = Astro.site?.href ?? "https://vivekraman.dev";
@@ -43,6 +44,7 @@ const canonical = new URL(`blog/${slug}/`, site);
   <header class="post-header">
     <p class="post-header__meta">{dateLine}</p>
     <h1 class="post-header__title">{title}</h1>
+    <p class="post-header__meta" style="margin: 1rem;">{addedLine}</p>
     {
       heroImage && (
         <div class="post-hero" aria-hidden="true">

@@ -10,6 +10,23 @@ export default defineConfig({
   site: "https://vivekraman.dev",
   base: "/",
   output: "static",
+  vite: {
+    server: {
+      proxy: {
+        "/catchemall/dexes/": {
+          target: "https://pokedextracker.com",
+          changeOrigin: true,
+          rewrite: () => "/api/users/wannab",
+        },
+        "/catchemall/captures/": {
+          target: "https://pokedextracker.com",
+          changeOrigin: true,
+          rewrite: (path) =>
+            `/api/users/wannab/dexes/${path.slice("/catchemall/captures/".length, -1)}/captures`,
+        },
+      },
+    },
+  },
   /** Match static server’s directory URLs so internal links don’t chain redirects (better for view transitions). */
   trailingSlash: "always",
   integrations: [
