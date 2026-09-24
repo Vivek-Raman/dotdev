@@ -13,16 +13,16 @@ export default defineConfig({
   vite: {
     server: {
       proxy: {
-        "/catchemall/dexes/": {
-          target: "https://pokedextracker.com",
-          changeOrigin: true,
-          rewrite: () => "/api/users/wannab",
-        },
-        "/catchemall/captures/": {
+        "/catchemall/api/users/wannab/dexes/": {
           target: "https://pokedextracker.com",
           changeOrigin: true,
           rewrite: (path) =>
-            `/api/users/wannab/dexes/${path.slice("/catchemall/captures/".length, -1)}/captures`,
+            `/api/users/wannab/dexes/${path.slice("/catchemall/api/users/wannab/dexes/".length)}`,
+        },
+        "/catchemall/api/users/wannab": {
+          target: "https://pokedextracker.com",
+          changeOrigin: true,
+          rewrite: () => "/api/users/wannab",
         },
       },
     },
@@ -121,11 +121,15 @@ export default defineConfig({
         ],
       },
     }),
-    posthog({
-      posthogKey: "$!{{{POSTHOG_KEY}}}",
-      defaults: "2026-05-30",
-      api_host: "/gobble",
-    }),
+    ...(process.env.NODE_ENV === "development"
+      ? []
+      : [
+          posthog({
+            posthogKey: "$!{{{POSTHOG_KEY}}}",
+            defaults: "2026-05-30",
+            api_host: "/gobble",
+          }),
+        ]),
   ],
   markdown: {
     processor: unified(),
