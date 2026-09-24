@@ -690,6 +690,73 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       color: var(--color-muted);
     }
 
+    /* At this size, the original accent-on-cream fill loses its silhouette on dark cards. */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) .region-card__pokemon-status.is-caught {
+        color: #171311;
+        border-color: #171311;
+        background: linear-gradient(to bottom, #d95345 0 46%, #f5efe5 46%);
+        box-shadow: 0 1px 2px #0008;
+      }
+
+      :root:not([data-theme]) .region-card__pokemon-status.is-caught::before {
+        background: #171311;
+      }
+
+      :root:not([data-theme]) .region-card__pokemon-status.is-caught::after {
+        border-color: #171311;
+        background: #fbf7ef;
+        box-shadow: 0 0 0 1px #171311;
+      }
+
+      :root:not([data-theme]) .region-card__pokemon-status[data-collection-key="go"].is-caught {
+        background: linear-gradient(to bottom, #4d91df 0 46%, #f5efe5 46%);
+      }
+
+      :root:not([data-theme]) .region-card__pokemon-status.is-missing {
+        color: #9b958a;
+        border-color: #9b958a;
+        background: linear-gradient(to bottom, #4b4640 0 46%, #292622 46%);
+      }
+
+      :root:not([data-theme]) .region-card__pokemon-status.is-missing::after {
+        background: #292622;
+        box-shadow: 0 0 0 1px #292622;
+      }
+    }
+
+    :root[data-theme="dark"] .region-card__pokemon-status.is-caught {
+      color: #171311;
+      border-color: #171311;
+      background: linear-gradient(to bottom, #d95345 0 46%, #f5efe5 46%);
+      box-shadow: 0 1px 2px #0008;
+    }
+
+    :root[data-theme="dark"] .region-card__pokemon-status.is-caught::before {
+      background: #171311;
+    }
+
+    :root[data-theme="dark"] .region-card__pokemon-status.is-caught::after {
+      border-color: #171311;
+      background: #fbf7ef;
+      box-shadow: 0 0 0 1px #171311;
+    }
+
+    :root[data-theme="dark"] .region-card__pokemon-status[data-collection-key="go"].is-caught {
+      background: linear-gradient(to bottom, #4d91df 0 46%, #f5efe5 46%);
+    }
+
+    :root[data-theme="dark"] .region-card__pokemon-status.is-missing {
+      color: #9b958a;
+      border-color: #9b958a;
+      background: linear-gradient(to bottom, #4b4640 0 46%, #292622 46%);
+    }
+
+    :root[data-theme="dark"] .region-card__pokemon-status.is-missing::after {
+      background: #292622;
+      box-shadow: 0 0 0 1px #292622;
+    }
+
     @media (max-width: 34rem) {
       .region-card summary {
         grid-template-columns: minmax(0, 1fr) minmax(10rem, 1.1fr) 1rem;
