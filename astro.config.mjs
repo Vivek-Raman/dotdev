@@ -17,7 +17,7 @@ export default defineConfig({
           target: "https://pokedextracker.com",
           changeOrigin: true,
           rewrite: (path) =>
-            `/api/users/wannab/dexes/${path.slice("/catchemall/api/users/wannab/dexes/".length)}`,
+            `/api/users/wannab/dexes/${path.slice("/catchemall/api/users/wannab/dexes/".length, -1)}`,
         },
         "/catchemall/api/users/wannab": {
           target: "https://pokedextracker.com",

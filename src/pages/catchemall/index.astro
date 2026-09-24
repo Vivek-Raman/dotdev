@@ -244,7 +244,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       Promise.all(
         collections.map(async (collection) => {
           const response = await fetch(
-            `/catchemall/api/users/wannab/dexes/${encodeURIComponent(collection.dexSlug)}/captures`,
+            `/catchemall/api/users/wannab/dexes/${encodeURIComponent(collection.dexSlug)}/captures/`,
             {
               headers: { Accept: "application/json" },
             }
@@ -265,7 +265,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
         });
     };
 
-    fetch("/catchemall/api/users/wannab", { headers: { Accept: "application/json" } })
+    fetch("/catchemall/api/users/wannab/", { headers: { Accept: "application/json" } })
       .then((response) => {
         if (!response.ok) throw new Error("Unable to load dexes");
         return response.json() as Promise<User>;
