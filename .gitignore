@@ -20,3 +20,6 @@ pnpm-debug.log*
 
 node_modules
 .astro/
+
+# third-party API reference material
+pokedextracker-apispec.yaml
