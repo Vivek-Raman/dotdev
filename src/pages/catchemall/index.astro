@@ -42,6 +42,8 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
   </template>
 
   <script>
+    import { formSpriteManifest, spriteSheetVersions } from "../../data/pokemon-sprite-manifest";
+
     type Dex = {
       title: string;
       caught: number;
@@ -71,6 +73,8 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       dex?: Dex;
       captures: Map<string, Capture>;
     };
+
+    type ActiveFilter = { collectionKey: string; caught: boolean } | null;
 
     // Add a collection here to give every Pokémon another caught-state icon.
     const collectionMap = [
@@ -113,12 +117,20 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       const region = card.dataset.region;
       if (!region) return;
       for (const sprite of card.querySelectorAll<HTMLElement>(".region-card__pokemon-sprite")) {
-        sprite.style.backgroundImage = `url(/catchemall/sprites/${region}.png)`;
+        const sheet = sprite.dataset.spriteSheet ?? region;
+        const version = spriteSheetVersions[sheet];
+        const cacheKey = version ? `?v=${version}` : "";
+        sprite.style.backgroundImage = `url(/catchemall/sprites/${sheet}.png${cacheKey})`;
       }
       card.dataset.spritesLoaded = "true";
     };
 
-    const renderCollectionSummary = (collections: Collection[], target: HTMLElement) => {
+    const renderCollectionSummary = (
+      collections: Collection[],
+      target: HTMLElement,
+      activeFilter: ActiveFilter,
+      onFilter: (collectionKey: string, caught: boolean) => void
+    ) => {
       const summary = document.createElement("section");
       summary.className = "collection-summary";
       summary.setAttribute("aria-label", "Collection progress");
@@ -137,19 +149,53 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
         if (label) label.textContent = collection.label;
         if (count) count.textContent = `${caught.toLocaleString()} / ${total.toLocaleString()}`;
         if (track) track.style.width = `${percentage}%`;
+
+        const filters = document.createElement("div");
+        filters.className = "collection-summary__filters";
+        filters.setAttribute("aria-label", `Filter ${collection.label}`);
+        for (const [isCaught, filterLabel] of [
+          [true, "Caught"],
+          [false, "Uncaught"],
+        ] as const) {
+          const button = document.createElement("button");
+          button.className = "collection-summary__filter";
+          button.type = "button";
+          const icon = document.createElement("span");
+          icon.className = `region-card__pokemon-status ${isCaught ? "is-caught" : "is-missing"}`;
+          icon.dataset.collectionKey = collection.key;
+          icon.setAttribute("aria-hidden", "true");
+          button.append(icon, document.createTextNode(filterLabel));
+          const isActive = activeFilter?.collectionKey === collection.key && activeFilter.caught === isCaught;
+          button.setAttribute("aria-pressed", String(isActive));
+          if (isActive) button.classList.add("is-active");
+          button.addEventListener("click", () => onFilter(collection.key, isCaught));
+          filters.append(button);
+        }
+        item.append(filters);
         summary.append(item);
       }
       target.append(summary);
     };
 
-    const renderRegions = (captures: Capture[], collections: Collection[], target: HTMLElement) => {
+    const renderRegions = (
+      captures: Capture[],
+      collections: Collection[],
+      target: HTMLElement,
+      activeFilter: ActiveFilter
+    ) => {
       if (!regionCardTemplate) return;
 
       const section = document.createElement("section");
       section.className = "region-collection";
-      section.setAttribute("aria-label", "Collection by region");
+      const filterCollection = activeFilter
+        ? collections.find((collection) => collection.key === activeFilter.collectionKey)
+        : undefined;
+      const filterLabel = filterCollection
+        ? `${activeFilter?.caught ? "Caught" : "Uncaught"} in ${filterCollection.label}`
+        : "Collection";
+      section.setAttribute("aria-label", `${filterLabel} by region`);
       const heading = document.createElement("h3");
-      heading.textContent = "Collection by region";
+      heading.textContent = `${filterLabel} by region`;
       section.append(heading);
 
       const grouped = new Map<number, Capture[]>();
@@ -194,15 +240,19 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
             const item = document.createElement("li");
             item.className = "region-card__pokemon-item";
             const pokemonId = capture.pokemon.national_id ?? capture.pokemon.dex_number;
-            const spriteIndex = pokemonId ? pokemonId - region.start : -1;
+            const formKey = pokemonId && capture.pokemon.form ? `${pokemonId}:${capture.pokemon.form}` : null;
+            const formSprite = formKey ? formSpriteManifest[formKey] : undefined;
+            const spriteIndex = formSprite?.slot ?? (pokemonId ? pokemonId - region.start : -1);
             const number = String(capture.pokemon.dex_number ?? "?").padStart(4, "0");
-            const label = `#${number} ${capture.pokemon.name}${
+            const pokemonName = `${capture.pokemon.name}${
               capture.pokemon.form ? ` (${capture.pokemon.form})` : ""
             }`;
+            const label = `#${number} ${pokemonName}`;
             item.title = label;
             const sprite = document.createElement("span");
             sprite.className = "region-card__pokemon-sprite";
             sprite.setAttribute("aria-hidden", "true");
+            sprite.dataset.spriteSheet = formSprite?.sheet ?? region.slug;
             if (spriteIndex >= 0) {
               const column = spriteIndex % 16;
               const row = Math.floor(spriteIndex / 16);
@@ -214,7 +264,10 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
             pokemonNumber.textContent = `#${number}`;
             const name = document.createElement("span");
             name.className = "region-card__pokemon-name";
-            name.textContent = label;
+            name.textContent = pokemonName;
+            const metadata = document.createElement("span");
+            metadata.className = "region-card__pokemon-meta";
+            metadata.append(name);
             const statuses = document.createElement("span");
             statuses.className = "region-card__pokemon-statuses";
             for (const collectionDefinition of collections) {
@@ -230,7 +283,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
               status.title = `${collectionDefinition.label}: ${caught ? "caught" : "uncaught"}`;
               statuses.append(status);
             }
-            item.append(sprite, pokemonNumber, name, statuses);
+            item.append(pokemonNumber, sprite, metadata, statuses);
             pokemonList.append(item);
           }
         }
@@ -286,9 +339,33 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       )
         .then(() => {
           status.remove();
-          renderCollectionSummary(collections, panel);
           const primaryCollection = collections[0];
-          if (primaryCollection) renderRegions([...primaryCollection.captures.values()], collections, panel);
+          if (!primaryCollection) return;
+
+          let activeFilter: ActiveFilter = null;
+          const renderFilteredCollections = () => {
+            panel.querySelectorAll(".collection-summary, .region-collection").forEach((element) => {
+              element.remove();
+            });
+            renderCollectionSummary(collections, panel, activeFilter, (collectionKey, caught) => {
+              activeFilter =
+                activeFilter?.collectionKey === collectionKey && activeFilter.caught === caught
+                  ? null
+                  : { collectionKey, caught };
+              renderFilteredCollections();
+            });
+            const filterCollection = activeFilter
+              ? collections.find((collection) => collection.key === activeFilter.collectionKey)
+              : undefined;
+            const captures = filterCollection
+              ? [...primaryCollection.captures.values()].filter(
+                  (capture) => filterCollection.captures.get(captureKey(capture))?.captured === activeFilter?.caught
+                )
+              : [...primaryCollection.captures.values()];
+            renderRegions(captures, collections, panel, activeFilter);
+          };
+
+          renderFilteredCollections();
         })
         .catch(() => {
           status.textContent = "The collections are unavailable right now. Please try again shortly.";
@@ -512,8 +589,49 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       background: var(--dex-red);
     }
 
+    .collection-summary__filters {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.35rem;
+    }
+
+    .collection-summary__filter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      min-height: 2rem;
+      padding: 0.35rem 0.5rem;
+      color: var(--color-muted);
+      border: 1px solid color-mix(in srgb, var(--color-stroke) 82%, transparent);
+      border-radius: 0.38rem;
+      background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+      font: inherit;
+      font-size: 0.73rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .collection-summary__filter[aria-pressed="true"] {
+      color: var(--dex-red-deep);
+      border-color: color-mix(in srgb, var(--dex-red) 62%, var(--color-stroke));
+      background: color-mix(in srgb, var(--dex-red) 14%, var(--color-surface));
+    }
+
+    .collection-summary__filter:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
     .collection-summary__item[data-collection-key="go"] .collection-summary__track > span {
       background: #3c78b9;
+    }
+
+    .collection-summary__item[data-collection-key="go"] .collection-summary__filter[aria-pressed="true"] {
+      color: #285f9b;
+      border-color: color-mix(in srgb, #3c78b9 62%, var(--color-stroke));
+      background: color-mix(in srgb, #3c78b9 14%, var(--color-surface));
     }
 
     .region-collection {
@@ -705,23 +823,39 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
     }
 
     .region-card__pokemon-number {
+      position: absolute;
+      top: 0.65rem;
+      right: 0.7rem;
+      z-index: 2;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      opacity: 0.82;
+      pointer-events: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--dex-gold) 65%, transparent);
+    }
+
+    .region-card__pokemon-meta {
+      display: flex;
       grid-column: 1;
       grid-row: 2;
       z-index: 1;
+      min-width: 0;
+      align-items: baseline;
       color: var(--color-muted);
-      font-family: var(--font-mono);
       font-size: 0.72rem;
+      white-space: nowrap;
     }
 
     .region-card__pokemon-name {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
+      min-width: 0;
       overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+      text-overflow: ellipsis;
+      font-size: 0.78rem;
+      font-weight: 600;
     }
 
     .region-card__pokemon-statuses {

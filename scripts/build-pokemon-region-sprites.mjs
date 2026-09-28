@@ -1,24 +1,16 @@
+import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import sharp from "sharp";
+import { regions } from "./pokemon-sprite-sheets.config.mjs";
 
 const atlasUrl = "https://pokedextracker.com/pokesprite-v12.png";
 const bundleUrl = "https://pokedextracker.com/main.0764457964fe78d1c7f1.js";
+const capturesUrl = "https://pokedextracker.com/api/users/wannab/dexes/allllll/captures";
 const outputDirectory = resolve("public/catchemall/sprites");
+const manifestPath = resolve("src/data/pokemon-sprite-manifest.ts");
 const cellSize = 128;
 const columns = 16;
-
-const regions = [
-  { slug: "kanto", start: 1, end: 151 },
-  { slug: "johto", start: 152, end: 251 },
-  { slug: "hoenn", start: 252, end: 386 },
-  { slug: "sinnoh", start: 387, end: 493 },
-  { slug: "unova", start: 494, end: 649 },
-  { slug: "kalos", start: 650, end: 721 },
-  { slug: "alola", start: 722, end: 809 },
-  { slug: "galar", start: 810, end: 905 },
-  { slug: "paldea", start: 906, end: 1025 },
-];
 
 const fetchRequired = async (url) => {
   const response = await fetch(url);
@@ -26,17 +18,19 @@ const fetchRequired = async (url) => {
   return response;
 };
 
-const parseDefaultSprites = (bundle) => {
+const parseSprites = (bundle) => {
   const sprites = new Map();
   const blocks = bundle.matchAll(/([^{}]+)\{([^{}]*)\}/g);
 
   for (const [, selector, declarations] of blocks) {
-    const id = selector.trim().match(/^\.pkicon\.pkicon-(\d+)$/)?.[1];
+    const spriteMatch = selector.trim().match(/^\.pkicon\.pkicon-(\d+)(?:\.form-([\w-]+))?$/);
     const dimensions = declarations.match(/width:\s*(\d+)px;\s*height:\s*(\d+)px/);
     const position = declarations.match(/background-position:\s*(-?\d+)px\s+(-?\d+)px/);
-    if (!id || !dimensions || !position) continue;
+    if (!spriteMatch || !dimensions || !position) continue;
 
-    sprites.set(Number(id), {
+    const [, id, form = "default"] = spriteMatch;
+
+    sprites.set(`${Number(id)}:${form}`, {
       width: Number(dimensions[1]),
       height: Number(dimensions[2]),
       left: Math.abs(Number(position[1])),
@@ -48,25 +42,53 @@ const parseDefaultSprites = (bundle) => {
 };
 
 const bundle = await (await fetchRequired(bundleUrl)).text();
-const sprites = parseDefaultSprites(bundle);
+const sprites = parseSprites(bundle);
 const atlas = Buffer.from(await (await fetchRequired(atlasUrl)).arrayBuffer());
+const captures = await (await fetchRequired(capturesUrl)).json();
+const alternateFormsByGeneration = new Map();
 
-await mkdir(outputDirectory, { recursive: true });
+for (const capture of captures) {
+  const pokemon = capture.pokemon;
+  const id = pokemon?.national_id;
+  const form = pokemon?.form;
+  const generation = pokemon?.game_family?.generation;
+  if (!id || !form || !generation) continue;
+
+  const forms = alternateFormsByGeneration.get(generation) ?? [];
+  forms.push({ id, form });
+  alternateFormsByGeneration.set(generation, forms);
+}
+
+await Promise.all([
+  mkdir(outputDirectory, { recursive: true }),
+  mkdir(resolve("src/data"), { recursive: true }),
+]);
+const formSpriteManifest = {};
+const spriteSheetVersions = {};
 
 for (const region of regions) {
-  const ids = Array.from(
-    { length: region.end - region.start + 1 },
-    (_, index) => region.start + index
-  );
-  const missing = ids.filter((id) => !sprites.has(id));
-  if (missing.length)
-    throw new Error(`${region.slug} is missing sprite data for ${missing.join(", ")}`);
+  const entries = Array.from({ length: region.end - region.start + 1 }, (_, index) => ({
+    id: region.start + index,
+    form: "default",
+  }));
+  for (const form of alternateFormsByGeneration.get(region.generation) ?? []) {
+    if (!entries.some((entry) => entry.id === form.id && entry.form === form.form)) {
+      entries.push(form);
+    }
+  }
 
-  const rows = Math.ceil(ids.length / columns);
+  const missing = entries.filter(({ id, form }) => !sprites.has(`${id}:${form}`));
+  if (missing.length) {
+    throw new Error(
+      `${region.slug} is missing sprite data for ${missing.map(({ id, form }) => `${id}:${form}`).join(", ")}`
+    );
+  }
+
+  const rows = Math.ceil(entries.length / columns);
   const composites = await Promise.all(
-    ids.map(async (id, index) => {
-      const sprite = sprites.get(id);
-      if (!sprite) throw new Error(`Missing sprite data for #${id}`);
+    entries.map(async ({ id, form }, index) => {
+      const sprite = sprites.get(`${id}:${form}`);
+      if (!sprite) throw new Error(`Missing sprite data for #${id} ${form}`);
       const scale = Math.max(1, Math.floor(Math.min(112 / sprite.width, 112 / sprite.height)));
       const width = sprite.width * scale;
       const height = sprite.height * scale;
@@ -85,7 +107,11 @@ for (const region of regions) {
     })
   );
 
-  await sharp({
+  for (const [slot, { id, form }] of entries.entries()) {
+    if (form !== "default") formSpriteManifest[`${id}:${form}`] = { sheet: region.slug, slot };
+  }
+
+  const output = await sharp({
     create: {
       width: columns * cellSize,
       height: rows * cellSize,
@@ -95,10 +121,15 @@ for (const region of regions) {
   })
     .composite(composites)
     .png({ compressionLevel: 9, palette: true })
-    .toFile(resolve(outputDirectory, `${region.slug}.png`));
+    .toBuffer();
+  await writeFile(resolve(outputDirectory, `${region.slug}.png`), output);
+  spriteSheetVersions[region.slug] = createHash("sha256").update(output).digest("hex").slice(0, 12);
 }
 
-const sourceNote = `# Pokemon regional sprite sheets\n\nGenerated by \`scripts/build-pokemon-region-sprites.mjs\`.\n\nSource atlas: ${atlasUrl}\nSource bundle: ${bundleUrl}\n\nThe script reads Pokedex Tracker's default-sprite CSS crop rules, then scales each sprite with nearest-neighbor pixels into fixed 128px cells in national Pokedex order. Re-run \`npm run build:pokemon-sprites\` only when deliberately updating the pinned source.\n`;
+const manifestSource = `// Generated by scripts/build-pokemon-region-sprites.mjs. Do not edit manually.\nexport type FormSpriteLocation = { sheet: string; slot: number };\n\nexport const formSpriteManifest: Record<string, FormSpriteLocation> = ${JSON.stringify(formSpriteManifest, null, 2)};\n\nexport const spriteSheetVersions: Record<string, string> = ${JSON.stringify(spriteSheetVersions, null, 2)};\n`;
+await writeFile(manifestPath, manifestSource);
+
+const sourceNote = `# Pokemon regional sprite sheets\n\nGenerated by \`scripts/build-pokemon-region-sprites.mjs\`.\n\nSource atlas: ${atlasUrl}\nSource bundle: ${bundleUrl}\nSource forms: ${capturesUrl}\n\nThe script reads Pokedex Tracker's CSS crop rules, then scales each sprite with nearest-neighbor pixels into fixed 128px cells. It appends every alternate form returned by the same all-dex captures API this page uses, placing each one in its reported generation's regional sheet. Re-run \`npm run build:pokemon-sprites\` when Pokedex Tracker adds or changes forms.\n`;
 await writeFile(resolve(outputDirectory, "README.md"), sourceNote);
 
 console.log(`Wrote ${regions.length} regional sprite sheets to ${outputDirectory}`);
