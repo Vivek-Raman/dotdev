@@ -4,7 +4,6 @@ import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import mermaid from "astro-mermaid";
-import posthog from "astro-posthog";
 
 export default defineConfig({
   site: "https://vivekraman.dev",
@@ -121,15 +120,6 @@ export default defineConfig({
         ],
       },
     }),
-    ...(process.env.NODE_ENV === "development"
-      ? []
-      : [
-          posthog({
-            posthogKey: "$!{{{POSTHOG_KEY}}}",
-            defaults: "2026-05-30",
-            api_host: "/gobble",
-          }),
-        ]),
   ],
   markdown: {
     processor: unified(),

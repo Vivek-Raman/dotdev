@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import { fade } from "astro:transitions";
 import "../../styles/index.css";
 import { THEME } from "../../config/theme";
+import PostHog from "../PostHog.astro";
 import ThemeInit from "../ThemeInit.astro";
 import SiteTopNav from "./SiteTopNav.astro";
 import SiteFooter from "./SiteFooter.astro";
@@ -63,6 +64,7 @@ const fontPreloads: string[] = [
     <meta name="description" content={description} />
     <meta name="theme-color" content={THEME.colorDark} id="meta-theme-color" />
     <ThemeInit />
+    <PostHog />
     {
       includeOpenGraph && (
         <>

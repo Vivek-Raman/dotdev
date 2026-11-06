@@ -1,0 +1,11 @@
+<script>
+  import posthog from "posthog-js/dist/module.full.no-external";
+
+  if (import.meta.env.PROD) {
+    posthog.init("$!{{{POSTHOG_KEY}}}", {
+      api_host: "/gobble",
+      defaults: "2026-05-30",
+      disable_external_dependency_loading: true,
+    });
+  }
+</script>
