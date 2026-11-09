@@ -2,6 +2,15 @@
   import posthog from "posthog-js/dist/module.full.no-external";
 
   if (import.meta.env.PROD) {
+    // Map both the initial and remotely configured event paths before init sends events.
+    const endpointFor = posthog.requestRouter.endpointFor.bind(posthog.requestRouter);
+    posthog.requestRouter.endpointFor = (target, path) => {
+      if (target === "api" && (path === "/e/" || path === "/i/v0/e/")) {
+        return endpointFor(target, "/event/");
+      }
+      return endpointFor(target, path);
+    };
+
     posthog.init("$!{{{POSTHOG_KEY}}}", {
       api_host: "/gobble/",
       defaults: "2026-05-30",
