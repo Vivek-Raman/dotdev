@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "build:pokemon-catalog": "node scripts/build-pokemon-catalog.mjs",
     "build:pokemon-sprites": "node scripts/build-pokemon-region-sprites.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

@@ -71,7 +71,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       label: string;
       dexSlug: string;
       dex?: Dex;
-      captures: Map<string, Capture>;
+      captures: Map<string, boolean>;
     };
 
     type ActiveFilter = { collectionKey: string; caught: boolean } | null;
@@ -101,11 +101,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
     };
 
     const captureKey = (capture: Capture) =>
-      String(
-        capture.pokemon.national_id ??
-          capture.pokemon.dex_number ??
-          `${capture.pokemon.name}-${capture.pokemon.form ?? ""}`
-      );
+      `${capture.pokemon.national_id ?? capture.pokemon.dex_number ?? capture.pokemon.name}:${capture.pokemon.form ?? "default"}`;
 
     const collectionPercentage = (captures: Capture[]) => {
       const caught = captures.filter((capture) => capture.captured).length;
@@ -136,7 +132,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       summary.setAttribute("aria-label", "Collection progress");
 
       for (const collection of collections) {
-        const caught = [...collection.captures.values()].filter(({ captured }) => captured).length;
+        const caught = [...collection.captures.values()].filter(Boolean).length;
         const total = collection.captures.size;
         const percentage = total ? Math.round((caught / total) * 100) : 0;
         const item = document.createElement("div");
@@ -236,8 +232,11 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
           const baselineRegion = baselineGrouped.get(generation) ?? [];
           for (const collectionDefinition of collections) {
             const regionCaptures = baselineRegion
-              .map((capture) => collectionDefinition.captures.get(captureKey(capture)))
-              .filter((capture): capture is Capture => Boolean(capture));
+              .filter((capture) => collectionDefinition.captures.has(captureKey(capture)))
+              .map((capture) => ({
+                ...capture,
+                captured: collectionDefinition.captures.get(captureKey(capture)) ?? false,
+              }));
             const status = document.createElement("span");
             status.className = "region-card__collection-status";
             status.dataset.collectionKey = collectionDefinition.key;
@@ -321,7 +320,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
             statuses.className = "region-card__pokemon-statuses";
             for (const collectionDefinition of collections) {
               const collectionCapture = collectionDefinition.captures.get(captureKey(capture));
-              const caught = collectionCapture?.captured ?? false;
+              const caught = collectionCapture ?? false;
               const status = document.createElement("span");
               status.className = `region-card__pokemon-status ${caught ? "is-caught" : "is-missing"}`;
               status.dataset.collectionKey = collectionDefinition.key;
@@ -341,7 +340,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       target.append(section);
     };
 
-    const renderDexes = (dexes: Dex[]) => {
+    const renderDexes = (dexes: Dex[], catalog: Capture[]) => {
       if (!container) return;
 
       container.replaceChildren();
@@ -356,7 +355,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
         .map((definition) => ({
           ...definition,
           dex: dexes.find((dex) => dex.slug === definition.dexSlug),
-          captures: new Map<string, Capture>(),
+          captures: new Map<string, boolean>(),
         }))
         .filter((collection) => collection.dex);
 
@@ -383,13 +382,13 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
           );
           if (!response.ok) throw new Error("Unable to load captures");
           const captures = (await response.json()) as Capture[];
-          collection.captures = new Map(captures.map((capture) => [captureKey(capture), capture]));
+          collection.captures = new Map(
+            captures.map((capture) => [captureKey(capture), capture.captured])
+          );
         })
       )
         .then(() => {
           status.remove();
-          const primaryCollection = collections[0];
-          if (!primaryCollection) return;
 
           let activeFilter: ActiveFilter = null;
           const renderFilteredCollections = () => {
@@ -407,19 +406,12 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
               ? collections.find((collection) => collection.key === activeFilter.collectionKey)
               : undefined;
             const captures = filterCollection
-              ? [...primaryCollection.captures.values()].filter(
+              ? catalog.filter(
                   (capture) =>
-                    filterCollection.captures.get(captureKey(capture))?.captured ===
-                    activeFilter?.caught
+                    filterCollection.captures.get(captureKey(capture)) === activeFilter?.caught
                 )
-              : [...primaryCollection.captures.values()];
-            renderRegions(
-              captures,
-              [...primaryCollection.captures.values()],
-              collections,
-              panel,
-              activeFilter
-            );
+              : catalog;
+            renderRegions(captures, catalog, collections, panel, activeFilter);
           };
 
           renderFilteredCollections();
@@ -430,12 +422,20 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
         });
     };
 
-    fetch("/catchemall/api/users/wannab/", { headers: { Accept: "application/json" } })
-      .then((response) => {
-        if (!response.ok) throw new Error("Unable to load dexes");
-        return response.json() as Promise<User>;
-      })
-      .then((user) => renderDexes(user.dexes ?? []))
+    Promise.all([
+      fetch("/catchemall/api/users/wannab/", { headers: { Accept: "application/json" } }).then(
+        (response) => {
+          if (!response.ok) throw new Error("Unable to load dexes");
+          return response.json() as Promise<User>;
+        }
+      ),
+      // Vite emits a separate, content-hashed catalog asset. Capture refreshes
+      // do not download the catalog or the lazily loaded sprite sheets again.
+      import("../../data/pokemon-catalog").then(({ default: pokemon }) =>
+        pokemon.map((pokemon) => ({ pokemon, captured: false }))
+      ),
+    ])
+      .then(([user, catalog]) => renderDexes(user.dexes ?? [], catalog))
       .catch(() => {
         if (container) container.setAttribute("aria-busy", "false");
         renderStatus("The dexes are unavailable right now. Please try again shortly.");
