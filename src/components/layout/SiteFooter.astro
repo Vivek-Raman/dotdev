@@ -16,6 +16,13 @@ const version = pkg.version;
     <NavLink href="/catchemall/">Catch 'em all</NavLink>
   </div>
   <div class="landing__footer-inner">
+    <span
+      data-internal-indicator
+      hidden
+      title="This browser's events are tagged is_internal for filtering in PostHog."
+    >
+      Internal analytics traffic
+    </span>
     <a href={`https://github.com/Vivek-Raman/dotdev/tree/v${version}`} target="_blank">
       dotdev@v{version}
     </a>

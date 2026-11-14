@@ -1,5 +1,52 @@
 <script>
   import posthog from "posthog-js/dist/module.full.no-external";
+  import type { TransitionBeforePreparationEvent } from "astro:transitions/client";
+
+  const storageKey = "internal_user";
+  let isInternal = false;
+  let analyticsReady = false;
+
+  function updateInternalState(url = new URL(window.location.href)) {
+    const toggle = url.searchParams.get("internal");
+    try {
+      if (toggle === "1") localStorage.setItem(storageKey, "1");
+      if (toggle === "0") localStorage.removeItem(storageKey);
+      isInternal = localStorage.getItem(storageKey) === "1";
+    } catch {
+      // Still support the toggle for this page if browser storage is unavailable.
+    }
+    if (toggle === "1" || toggle === "0") isInternal = toggle === "1";
+    if (analyticsReady) posthog.register({ is_internal: isInternal });
+  }
+
+  function updateFooter() {
+    document.querySelectorAll<HTMLElement>("[data-internal-indicator]").forEach((indicator) => {
+      indicator.hidden = !isInternal;
+    });
+  }
+
+  function onPageLoad() {
+    updateInternalState();
+    const url = new URL(window.location.href);
+    if (["0", "1"].includes(url.searchParams.get("internal") ?? "")) {
+      url.searchParams.delete("internal");
+      history.replaceState(history.state, "", url);
+    }
+    updateFooter();
+  }
+
+  updateInternalState();
+  document.addEventListener("astro:before-preparation", (event) => {
+    updateInternalState((event as TransitionBeforePreparationEvent).to);
+  });
+  document.addEventListener("astro:page-load", onPageLoad);
+  window.addEventListener("storage", (event) => {
+    if (event.key === storageKey || event.key === null) {
+      updateInternalState();
+      updateFooter();
+    }
+  });
+  onPageLoad();
 
   if (import.meta.env.PROD) {
     // Map both the initial and remotely configured event paths before init sends events.
@@ -15,6 +62,11 @@
       api_host: "/gobble/",
       defaults: "2026-05-30",
       disable_external_dependency_loading: true,
+      loaded: (client) => {
+        // The loaded callback runs before the SDK's initial pageview.
+        client.register({ is_internal: isInternal });
+        analyticsReady = true;
+      },
     });
   }
 </script>
