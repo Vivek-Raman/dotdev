@@ -15,13 +15,12 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
 >
   <main class="catchemall" aria-labelledby="catchemall-title">
     <header class="catchemall__header">
-      <p class="catchemall__eyebrow">Pokedex Tracker</p>
       <h1 id="catchemall-title">Catch 'em all</h1>
       <p>wannab's Pokémon Home and Pokémon Go progress, updated from Pokedex Tracker.</p>
     </header>
 
     <section aria-live="polite" aria-busy="true" id="dexes">
-      <p class="catchemall__status">Loading dexes...</p>
+      <p class="catchemall__status">Loading collection progress...</p>
     </section>
   </main>
 
@@ -93,353 +92,371 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       [8, { name: "Galar", slug: "galar", start: 810 }],
       [9, { name: "Paldea", slug: "paldea", start: 906 }],
     ]);
-    const container = document.querySelector<HTMLElement>("#dexes");
-    const regionCardTemplate = document.querySelector<HTMLTemplateElement>("#region-card-template");
-
-    const renderStatus = (message: string) => {
-      if (container) container.innerHTML = `<p class="catchemall__status">${message}</p>`;
-    };
-
-    const captureKey = (capture: Capture) =>
-      `${capture.pokemon.national_id ?? capture.pokemon.dex_number ?? capture.pokemon.name}:${capture.pokemon.form ?? "default"}`;
-
-    const collectionPercentage = (captures: Capture[]) => {
-      const caught = captures.filter((capture) => capture.captured).length;
-      return captures.length ? Math.round((caught / captures.length) * 100) : 0;
-    };
-
-    const loadRegionSprites = (card: HTMLDetailsElement) => {
-      if (!card.open || card.dataset.spritesLoaded) return;
-      const region = card.dataset.region;
-      if (!region) return;
-      for (const sprite of card.querySelectorAll<HTMLElement>(".region-card__pokemon-sprite")) {
-        const sheet = sprite.dataset.spriteSheet ?? region;
-        const version = spriteSheetVersions[sheet];
-        const cacheKey = version ? `?v=${version}` : "";
-        sprite.style.backgroundImage = `url(/catchemall/sprites/${sheet}.png${cacheKey})`;
-      }
-      card.dataset.spritesLoaded = "true";
-    };
-
-    const renderCollectionSummary = (
-      collections: Collection[],
-      target: HTMLElement,
-      activeFilter: ActiveFilter,
-      onFilter: (collectionKey: string, caught: boolean) => void
-    ) => {
-      const summary = document.createElement("section");
-      summary.className = "collection-summary";
-      summary.setAttribute("aria-label", "Collection progress");
-
-      for (const collection of collections) {
-        const caught = [...collection.captures.values()].filter(Boolean).length;
-        const total = collection.captures.size;
-        const percentage = total ? Math.round((caught / total) * 100) : 0;
-        const item = document.createElement("div");
-        item.className = "collection-summary__item";
-        item.dataset.collectionKey = collection.key;
-        item.innerHTML = `<span class="collection-summary__label"></span><strong></strong><span class="collection-summary__track" aria-hidden="true"><span></span></span>`;
-        const label = item.querySelector<HTMLElement>(".collection-summary__label");
-        const count = item.querySelector<HTMLElement>("strong");
-        const track = item.querySelector<HTMLElement>(".collection-summary__track > span");
-        if (label) label.textContent = collection.label;
-        if (count) count.textContent = `${caught.toLocaleString()} / ${total.toLocaleString()}`;
-        if (track) track.style.width = `${percentage}%`;
-
-        const filters = document.createElement("div");
-        filters.className = "collection-summary__filters";
-        filters.setAttribute("aria-label", `Filter ${collection.label}`);
-        for (const [isCaught, filterLabel] of [
-          [true, "Caught"],
-          [false, "Uncaught"],
-        ] as const) {
-          const button = document.createElement("button");
-          button.className = "collection-summary__filter";
-          button.type = "button";
-          const icon = document.createElement("span");
-          icon.className = `region-card__pokemon-status ${isCaught ? "is-caught" : "is-missing"}`;
-          icon.dataset.collectionKey = collection.key;
-          icon.setAttribute("aria-hidden", "true");
-          button.append(icon, document.createTextNode(filterLabel));
-          const isActive =
-            activeFilter?.collectionKey === collection.key && activeFilter.caught === isCaught;
-          button.setAttribute("aria-pressed", String(isActive));
-          if (isActive) button.classList.add("is-active");
-          button.addEventListener("click", () => onFilter(collection.key, isCaught));
-          filters.append(button);
-        }
-        item.append(filters);
-        summary.append(item);
-      }
-      target.append(summary);
-    };
-
-    const renderRegions = (
-      captures: Capture[],
-      baselineCaptures: Capture[],
-      collections: Collection[],
-      target: HTMLElement,
-      activeFilter: ActiveFilter
-    ) => {
-      if (!regionCardTemplate) return;
-
-      const section = document.createElement("section");
-      section.className = "region-collection";
-      const filterCollection = activeFilter
-        ? collections.find((collection) => collection.key === activeFilter.collectionKey)
-        : undefined;
-      const filterLabel = filterCollection
-        ? `${activeFilter?.caught ? "Caught" : "Uncaught"} in ${filterCollection.label}`
-        : "Collection";
-      section.setAttribute("aria-label", `${filterLabel} by region`);
-      const heading = document.createElement("h3");
-      heading.textContent = `${filterLabel} by region`;
-      section.append(heading);
-
-      const grouped = new Map<number, Capture[]>();
-      for (const capture of captures) {
-        const generation = capture.pokemon.game_family?.generation;
-        if (!generation || !regions.has(generation)) continue;
-        grouped.set(generation, [...(grouped.get(generation) ?? []), capture]);
-      }
-
-      const baselineGrouped = new Map<number, Capture[]>();
-      for (const capture of baselineCaptures) {
-        const generation = capture.pokemon.game_family?.generation;
-        if (!generation || !regions.has(generation)) continue;
-        baselineGrouped.set(generation, [...(baselineGrouped.get(generation) ?? []), capture]);
-      }
-
-      for (const [generation, region] of regions) {
-        const collection = grouped.get(generation);
-        if (!collection?.length) continue;
-        const total = collection.length;
-        const card = regionCardTemplate.content.cloneNode(true) as DocumentFragment;
-        const title = card.querySelector<HTMLElement>(".region-card__title");
-        const regionGeneration = card.querySelector<HTMLElement>(".region-card__generation");
-        const details = card.querySelector<HTMLElement>(".region-card__body p");
-        const regionProgress = card.querySelector<HTMLElement>(".region-card__collection-progress");
-        const pokemonList = card.querySelector<HTMLUListElement>(".region-card__pokemon");
-        const regionCard = card.querySelector<HTMLDetailsElement>(".region-card");
-        if (regionCard) {
-          regionCard.dataset.region = region.slug;
-          regionCard.addEventListener("toggle", () => loadRegionSprites(regionCard));
-        }
-        if (title) title.textContent = region.name;
-        if (regionGeneration) regionGeneration.textContent = `Generation ${generation}`;
-        if (details) details.textContent = `${total.toLocaleString()} Pokémon`;
-        if (regionProgress) {
-          const baselineRegion = baselineGrouped.get(generation) ?? [];
-          for (const collectionDefinition of collections) {
-            const regionCaptures = baselineRegion
-              .filter((capture) => collectionDefinition.captures.has(captureKey(capture)))
-              .map((capture) => ({
-                ...capture,
-                captured: collectionDefinition.captures.get(captureKey(capture)) ?? false,
-              }));
-            const status = document.createElement("span");
-            status.className = "region-card__collection-status";
-            status.dataset.collectionKey = collectionDefinition.key;
-            status.textContent = `${collectionDefinition.label} ${collectionPercentage(regionCaptures)}%`;
-            regionProgress.append(status);
-          }
-          if (activeFilter?.collectionKey === "go" && !activeFilter.caught) {
-            const numbers = [
-              ...new Set(
-                collection.map(({ pokemon }) => pokemon.national_id ?? pokemon.dex_number)
-              ),
-            ]
-              .filter(
-                (number): number is number =>
-                  typeof number === "number" && Number.isInteger(number) && number > 0
-              )
-              .sort((a, b) => a - b);
-            if (numbers.length) {
-              const query = numbers.join(",");
-              const copyButton = document.createElement("button");
-              copyButton.type = "button";
-              copyButton.className = "region-card__copy-search";
-              copyButton.textContent = "Copy GO search";
-              copyButton.title = query;
-              copyButton.setAttribute("aria-label", `Copy ${region.name} Pokémon GO search`);
-              copyButton.setAttribute("aria-live", "polite");
-              copyButton.addEventListener("click", async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                try {
-                  await navigator.clipboard.writeText(query);
-                  copyButton.textContent = "Copied!";
-                  copyButton.setAttribute("aria-label", `${region.name} Pokémon GO search copied`);
-                } catch {
-                  copyButton.textContent = "Copy failed. Retry";
-                  copyButton.setAttribute(
-                    "aria-label",
-                    `Copy failed. Retry ${region.name} Pokémon GO search`
-                  );
-                }
-              });
-              regionProgress.append(copyButton);
-            }
-          }
-        }
-        if (pokemonList) {
-          for (const capture of collection) {
-            const item = document.createElement("li");
-            item.className = "region-card__pokemon-item";
-            const pokemonId = capture.pokemon.national_id ?? capture.pokemon.dex_number;
-            const formKey =
-              pokemonId && capture.pokemon.form ? `${pokemonId}:${capture.pokemon.form}` : null;
-            const formSprite = formKey ? formSpriteManifest[formKey] : undefined;
-            const spriteIndex = formSprite?.slot ?? (pokemonId ? pokemonId - region.start : -1);
-            const number = String(capture.pokemon.dex_number ?? "?").padStart(4, "0");
-            const pokemonName = `${capture.pokemon.name}${
-              capture.pokemon.form ? ` (${capture.pokemon.form})` : ""
-            }`;
-            const label = `#${number} ${pokemonName}`;
-            item.title = label;
-            const sprite = document.createElement("span");
-            sprite.className = "region-card__pokemon-sprite";
-            sprite.setAttribute("aria-hidden", "true");
-            sprite.dataset.spriteSheet = formSprite?.sheet ?? region.slug;
-            if (spriteIndex >= 0) {
-              const column = spriteIndex % 16;
-              const row = Math.floor(spriteIndex / 16);
-              sprite.style.setProperty("--sprite-column", String(column));
-              sprite.style.setProperty("--sprite-row", String(row));
-            }
-            const pokemonNumber = document.createElement("span");
-            pokemonNumber.className = "region-card__pokemon-number";
-            pokemonNumber.textContent = `#${number}`;
-            const name = document.createElement("span");
-            name.className = "region-card__pokemon-name";
-            name.textContent = pokemonName;
-            const metadata = document.createElement("span");
-            metadata.className = "region-card__pokemon-meta";
-            metadata.append(name);
-            const statuses = document.createElement("span");
-            statuses.className = "region-card__pokemon-statuses";
-            for (const collectionDefinition of collections) {
-              const collectionCapture = collectionDefinition.captures.get(captureKey(capture));
-              const caught = collectionCapture ?? false;
-              const status = document.createElement("span");
-              status.className = `region-card__pokemon-status ${caught ? "is-caught" : "is-missing"}`;
-              status.dataset.collectionKey = collectionDefinition.key;
-              status.setAttribute(
-                "aria-label",
-                `${collectionDefinition.label}: ${caught ? "caught" : "uncaught"}`
-              );
-              status.title = `${collectionDefinition.label}: ${caught ? "caught" : "uncaught"}`;
-              statuses.append(status);
-            }
-            item.append(pokemonNumber, sprite, metadata, statuses);
-            pokemonList.append(item);
-          }
-        }
-        section.append(card);
-      }
-      target.append(section);
-    };
-
-    const renderDexes = (dexes: Dex[], catalog: Capture[]) => {
+    const initCollections = () => {
+      const container = document.querySelector<HTMLElement>("#dexes");
       if (!container) return;
+      const regionCardTemplate =
+        document.querySelector<HTMLTemplateElement>("#region-card-template");
 
-      container.replaceChildren();
-      container.setAttribute("aria-busy", "false");
+      const renderStatus = (message: string) => {
+        if (!container) return;
+        container.setAttribute("aria-busy", "false");
+        const status = document.createElement("p");
+        status.className = "catchemall__status";
+        status.textContent = message;
+        container.replaceChildren(status);
+      };
 
-      if (dexes.length === 0) {
-        renderStatus("No dexes found.");
-        return;
-      }
+      const captureKey = (capture: Capture) =>
+        `${capture.pokemon.national_id ?? capture.pokemon.dex_number ?? capture.pokemon.name}:${capture.pokemon.form ?? "default"}`;
 
-      const collections = collectionMap
-        .map((definition) => ({
-          ...definition,
-          dex: dexes.find((dex) => dex.slug === definition.dexSlug),
-          captures: new Map<string, boolean>(),
-        }))
-        .filter((collection) => collection.dex);
+      const collectionPercentage = (captures: Capture[]) => {
+        const caught = captures.filter((capture) => capture.captured).length;
+        return captures.length ? Math.round((caught / captures.length) * 100) : 0;
+      };
 
-      if (!collections.length) {
-        renderStatus("The mapped collections were not found.");
-        return;
-      }
+      const loadRegionSprites = (card: HTMLDetailsElement) => {
+        if (!card.open || card.dataset.spritesLoaded) return;
+        const region = card.dataset.region;
+        if (!region) return;
+        for (const sprite of card.querySelectorAll<HTMLElement>(".region-card__pokemon-sprite")) {
+          const sheet = sprite.dataset.spriteSheet ?? region;
+          const version = spriteSheetVersions[sheet];
+          const cacheKey = version ? `?v=${version}` : "";
+          sprite.style.backgroundImage = `url(/catchemall/sprites/${sheet}.png${cacheKey})`;
+        }
+        card.dataset.spritesLoaded = "true";
+      };
 
-      const panel = document.createElement("div");
-      panel.className = "dex-panel";
-      const status = document.createElement("p");
-      status.className = "region-collection__status";
-      status.textContent = "Loading collections...";
-      panel.append(status);
-      container.append(panel);
+      const renderCollectionSummary = (
+        collections: Collection[],
+        target: HTMLElement,
+        activeFilter: ActiveFilter,
+        onFilter: (collectionKey: string, caught: boolean) => void
+      ) => {
+        const summary = document.createElement("section");
+        summary.className = "collection-summary";
+        summary.setAttribute("aria-label", "Collection progress");
 
-      Promise.all(
-        collections.map(async (collection) => {
-          const response = await fetch(
-            `/catchemall/api/users/wannab/dexes/${encodeURIComponent(collection.dexSlug)}/captures/`,
-            {
-              headers: { Accept: "application/json" },
+        for (const collection of collections) {
+          const caught = [...collection.captures.values()].filter(Boolean).length;
+          const total = collection.captures.size;
+          const percentage = total ? Math.round((caught / total) * 100) : 0;
+          const item = document.createElement("div");
+          item.className = "collection-summary__item";
+          item.dataset.collectionKey = collection.key;
+          item.innerHTML = `<span class="collection-summary__label"></span><strong></strong><span class="collection-summary__track" aria-hidden="true"><span></span></span>`;
+          const label = item.querySelector<HTMLElement>(".collection-summary__label");
+          const count = item.querySelector<HTMLElement>("strong");
+          const track = item.querySelector<HTMLElement>(".collection-summary__track > span");
+          if (label) label.textContent = collection.label;
+          if (count) count.textContent = `${caught.toLocaleString()} / ${total.toLocaleString()}`;
+          if (track) track.style.width = `${percentage}%`;
+
+          const filters = document.createElement("div");
+          filters.className = "collection-summary__filters";
+          filters.setAttribute("aria-label", `Filter ${collection.label}`);
+          for (const [isCaught, filterLabel] of [
+            [true, "Caught"],
+            [false, "Uncaught"],
+          ] as const) {
+            const button = document.createElement("button");
+            button.className = "collection-summary__filter";
+            button.type = "button";
+            const icon = document.createElement("span");
+            icon.className = `region-card__pokemon-status ${isCaught ? "is-caught" : "is-missing"}`;
+            icon.dataset.collectionKey = collection.key;
+            icon.setAttribute("aria-hidden", "true");
+            button.append(icon, document.createTextNode(filterLabel));
+            const isActive =
+              activeFilter?.collectionKey === collection.key && activeFilter.caught === isCaught;
+            button.setAttribute("aria-pressed", String(isActive));
+            if (isActive) button.classList.add("is-active");
+            button.addEventListener("click", () => onFilter(collection.key, isCaught));
+            filters.append(button);
+          }
+          item.append(filters);
+          summary.append(item);
+        }
+        target.append(summary);
+      };
+
+      const renderRegions = (
+        captures: Capture[],
+        baselineCaptures: Capture[],
+        collections: Collection[],
+        target: HTMLElement,
+        activeFilter: ActiveFilter
+      ) => {
+        if (!regionCardTemplate) return;
+
+        const section = document.createElement("section");
+        section.className = "region-collection";
+        const filterCollection = activeFilter
+          ? collections.find((collection) => collection.key === activeFilter.collectionKey)
+          : undefined;
+        const filterLabel = filterCollection
+          ? `${activeFilter?.caught ? "Caught" : "Uncaught"} in ${filterCollection.label}`
+          : "Collection";
+        section.setAttribute("aria-label", `${filterLabel} by region`);
+        const heading = document.createElement("h3");
+        heading.textContent = `${filterLabel} by region`;
+        section.append(heading);
+
+        const grouped = new Map<number, Capture[]>();
+        for (const capture of captures) {
+          const generation = capture.pokemon.game_family?.generation;
+          if (!generation || !regions.has(generation)) continue;
+          grouped.set(generation, [...(grouped.get(generation) ?? []), capture]);
+        }
+
+        const baselineGrouped = new Map<number, Capture[]>();
+        for (const capture of baselineCaptures) {
+          const generation = capture.pokemon.game_family?.generation;
+          if (!generation || !regions.has(generation)) continue;
+          baselineGrouped.set(generation, [...(baselineGrouped.get(generation) ?? []), capture]);
+        }
+
+        for (const [generation, region] of regions) {
+          const collection = grouped.get(generation);
+          if (!collection?.length) continue;
+          const total = collection.length;
+          const card = regionCardTemplate.content.cloneNode(true) as DocumentFragment;
+          const title = card.querySelector<HTMLElement>(".region-card__title");
+          const regionGeneration = card.querySelector<HTMLElement>(".region-card__generation");
+          const details = card.querySelector<HTMLElement>(".region-card__body p");
+          const regionProgress = card.querySelector<HTMLElement>(
+            ".region-card__collection-progress"
+          );
+          const pokemonList = card.querySelector<HTMLUListElement>(".region-card__pokemon");
+          const regionCard = card.querySelector<HTMLDetailsElement>(".region-card");
+          if (regionCard) {
+            regionCard.dataset.region = region.slug;
+            regionCard.addEventListener("toggle", () => loadRegionSprites(regionCard));
+          }
+          if (title) title.textContent = region.name;
+          if (regionGeneration) regionGeneration.textContent = `Generation ${generation}`;
+          if (details) details.textContent = `${total.toLocaleString()} Pokémon`;
+          if (regionProgress) {
+            const baselineRegion = baselineGrouped.get(generation) ?? [];
+            for (const collectionDefinition of collections) {
+              const regionCaptures = baselineRegion
+                .filter((capture) => collectionDefinition.captures.has(captureKey(capture)))
+                .map((capture) => ({
+                  ...capture,
+                  captured: collectionDefinition.captures.get(captureKey(capture)) ?? false,
+                }));
+              const status = document.createElement("span");
+              status.className = "region-card__collection-status";
+              status.dataset.collectionKey = collectionDefinition.key;
+              status.textContent = `${collectionDefinition.label} ${collectionPercentage(regionCaptures)}%`;
+              regionProgress.append(status);
             }
-          );
-          if (!response.ok) throw new Error("Unable to load captures");
-          const captures = (await response.json()) as Capture[];
-          collection.captures = new Map(
-            captures.map((capture) => [captureKey(capture), capture.captured])
-          );
-        })
-      )
-        .then(() => {
-          status.remove();
-
-          let activeFilter: ActiveFilter = null;
-          const renderFilteredCollections = () => {
-            panel.querySelectorAll(".collection-summary, .region-collection").forEach((element) => {
-              element.remove();
-            });
-            renderCollectionSummary(collections, panel, activeFilter, (collectionKey, caught) => {
-              activeFilter =
-                activeFilter?.collectionKey === collectionKey && activeFilter.caught === caught
-                  ? null
-                  : { collectionKey, caught };
-              renderFilteredCollections();
-            });
-            const filterCollection = activeFilter
-              ? collections.find((collection) => collection.key === activeFilter.collectionKey)
-              : undefined;
-            const captures = filterCollection
-              ? catalog.filter(
-                  (capture) =>
-                    filterCollection.captures.get(captureKey(capture)) === activeFilter?.caught
+            if (activeFilter?.collectionKey === "go" && !activeFilter.caught) {
+              const numbers = [
+                ...new Set(
+                  collection.map(({ pokemon }) => pokemon.national_id ?? pokemon.dex_number)
+                ),
+              ]
+                .filter(
+                  (number): number is number =>
+                    typeof number === "number" && Number.isInteger(number) && number > 0
                 )
-              : catalog;
-            renderRegions(captures, catalog, collections, panel, activeFilter);
-          };
+                .sort((a, b) => a - b);
+              if (numbers.length) {
+                const query = numbers.join(",");
+                const copyButton = document.createElement("button");
+                copyButton.type = "button";
+                copyButton.className = "region-card__copy-search";
+                copyButton.textContent = "Copy GO search";
+                copyButton.title = query;
+                copyButton.setAttribute("aria-label", `Copy ${region.name} Pokémon GO search`);
+                copyButton.setAttribute("aria-live", "polite");
+                copyButton.addEventListener("click", async (event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  try {
+                    await navigator.clipboard.writeText(query);
+                    copyButton.textContent = "Copied!";
+                    copyButton.setAttribute(
+                      "aria-label",
+                      `${region.name} Pokémon GO search copied`
+                    );
+                  } catch {
+                    copyButton.textContent = "Copy failed. Retry";
+                    copyButton.setAttribute(
+                      "aria-label",
+                      `Copy failed. Retry ${region.name} Pokémon GO search`
+                    );
+                  }
+                });
+                regionProgress.append(copyButton);
+              }
+            }
+          }
+          if (pokemonList) {
+            for (const capture of collection) {
+              const item = document.createElement("li");
+              item.className = "region-card__pokemon-item";
+              const pokemonId = capture.pokemon.national_id ?? capture.pokemon.dex_number;
+              const formKey =
+                pokemonId && capture.pokemon.form ? `${pokemonId}:${capture.pokemon.form}` : null;
+              const formSprite = formKey ? formSpriteManifest[formKey] : undefined;
+              const spriteIndex = formSprite?.slot ?? (pokemonId ? pokemonId - region.start : -1);
+              const number = String(capture.pokemon.dex_number ?? "?").padStart(4, "0");
+              const pokemonName = `${capture.pokemon.name}${
+                capture.pokemon.form ? ` (${capture.pokemon.form})` : ""
+              }`;
+              const label = `#${number} ${pokemonName}`;
+              item.title = label;
+              const sprite = document.createElement("span");
+              sprite.className = "region-card__pokemon-sprite";
+              sprite.setAttribute("aria-hidden", "true");
+              sprite.dataset.spriteSheet = formSprite?.sheet ?? region.slug;
+              if (spriteIndex >= 0) {
+                const column = spriteIndex % 16;
+                const row = Math.floor(spriteIndex / 16);
+                sprite.style.setProperty("--sprite-column", String(column));
+                sprite.style.setProperty("--sprite-row", String(row));
+              }
+              const pokemonNumber = document.createElement("span");
+              pokemonNumber.className = "region-card__pokemon-number";
+              pokemonNumber.textContent = `#${number}`;
+              const name = document.createElement("span");
+              name.className = "region-card__pokemon-name";
+              name.textContent = pokemonName;
+              const metadata = document.createElement("span");
+              metadata.className = "region-card__pokemon-meta";
+              metadata.append(name);
+              const statuses = document.createElement("span");
+              statuses.className = "region-card__pokemon-statuses";
+              for (const collectionDefinition of collections) {
+                const collectionCapture = collectionDefinition.captures.get(captureKey(capture));
+                const caught = collectionCapture ?? false;
+                const status = document.createElement("span");
+                status.className = `region-card__pokemon-status ${caught ? "is-caught" : "is-missing"}`;
+                status.dataset.collectionKey = collectionDefinition.key;
+                status.setAttribute(
+                  "aria-label",
+                  `${collectionDefinition.label}: ${caught ? "caught" : "uncaught"}`
+                );
+                status.title = `${collectionDefinition.label}: ${caught ? "caught" : "uncaught"}`;
+                statuses.append(status);
+              }
+              item.append(pokemonNumber, sprite, metadata, statuses);
+              pokemonList.append(item);
+            }
+          }
+          section.append(card);
+        }
+        target.append(section);
+      };
 
-          renderFilteredCollections();
-        })
+      const renderDexes = (dexes: Dex[], catalog: Capture[]) => {
+        if (!container) return;
+
+        container.replaceChildren();
+        if (dexes.length === 0) {
+          renderStatus("No dexes found.");
+          return;
+        }
+
+        const collections = collectionMap
+          .map((definition) => ({
+            ...definition,
+            dex: dexes.find((dex) => dex.slug === definition.dexSlug),
+            captures: new Map<string, boolean>(),
+          }))
+          .filter((collection) => collection.dex);
+
+        if (!collections.length) {
+          renderStatus("The mapped collections were not found.");
+          return;
+        }
+
+        const panel = document.createElement("div");
+        panel.className = "dex-panel";
+        const status = document.createElement("p");
+        status.className = "region-collection__status";
+        status.textContent = "Loading collections...";
+        panel.append(status);
+        container.append(panel);
+
+        Promise.all(
+          collections.map(async (collection) => {
+            const response = await fetch(
+              `/catchemall/api/users/wannab/dexes/${encodeURIComponent(collection.dexSlug)}/captures/`,
+              {
+                headers: { Accept: "application/json" },
+              }
+            );
+            if (!response.ok) throw new Error("Unable to load captures");
+            const captures = (await response.json()) as Capture[];
+            collection.captures = new Map(
+              captures.map((capture) => [captureKey(capture), capture.captured])
+            );
+          })
+        )
+          .then(() => {
+            container.setAttribute("aria-busy", "false");
+            status.remove();
+
+            let activeFilter: ActiveFilter = null;
+            const renderFilteredCollections = () => {
+              panel
+                .querySelectorAll(".collection-summary, .region-collection")
+                .forEach((element) => {
+                  element.remove();
+                });
+              renderCollectionSummary(collections, panel, activeFilter, (collectionKey, caught) => {
+                activeFilter =
+                  activeFilter?.collectionKey === collectionKey && activeFilter.caught === caught
+                    ? null
+                    : { collectionKey, caught };
+                renderFilteredCollections();
+              });
+              const filterCollection = activeFilter
+                ? collections.find((collection) => collection.key === activeFilter.collectionKey)
+                : undefined;
+              const captures = filterCollection
+                ? catalog.filter(
+                    (capture) =>
+                      filterCollection.captures.get(captureKey(capture)) === activeFilter?.caught
+                  )
+                : catalog;
+              renderRegions(captures, catalog, collections, panel, activeFilter);
+            };
+
+            renderFilteredCollections();
+          })
+          .catch(() => {
+            container.setAttribute("aria-busy", "false");
+            status.textContent =
+              "The collections are unavailable right now. Please try again shortly.";
+          });
+      };
+
+      Promise.all([
+        fetch("/catchemall/api/users/wannab/", { headers: { Accept: "application/json" } }).then(
+          (response) => {
+            if (!response.ok) throw new Error("Unable to load dexes");
+            return response.json() as Promise<User>;
+          }
+        ),
+        // Vite emits a separate, content-hashed catalog asset. Capture refreshes
+        // do not download the catalog or the lazily loaded sprite sheets again.
+        import("../../data/pokemon-catalog").then(({ default: pokemon }) =>
+          pokemon.map((pokemon) => ({ pokemon, captured: false }))
+        ),
+      ])
+        .then(([user, catalog]) => renderDexes(user.dexes ?? [], catalog))
         .catch(() => {
-          status.textContent =
-            "The collections are unavailable right now. Please try again shortly.";
+          if (container) container.setAttribute("aria-busy", "false");
+          renderStatus("The dexes are unavailable right now. Please try again shortly.");
         });
     };
 
-    Promise.all([
-      fetch("/catchemall/api/users/wannab/", { headers: { Accept: "application/json" } }).then(
-        (response) => {
-          if (!response.ok) throw new Error("Unable to load dexes");
-          return response.json() as Promise<User>;
-        }
-      ),
-      // Vite emits a separate, content-hashed catalog asset. Capture refreshes
-      // do not download the catalog or the lazily loaded sprite sheets again.
-      import("../../data/pokemon-catalog").then(({ default: pokemon }) =>
-        pokemon.map((pokemon) => ({ pokemon, captured: false }))
-      ),
-    ])
-      .then(([user, catalog]) => renderDexes(user.dexes ?? [], catalog))
-      .catch(() => {
-        if (container) container.setAttribute("aria-busy", "false");
-        renderStatus("The dexes are unavailable right now. Please try again shortly.");
-      });
+    document.addEventListener("astro:page-load", initCollections);
   </script>
   <style is:global>
     .catchemall-layout {
@@ -448,75 +465,13 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
     }
 
     .catchemall {
-      --dex-red: #b94737;
-      --dex-red-deep: #8e3028;
-      --dex-gold: #d39a4b;
-      --dex-paper: color-mix(in srgb, var(--color-surface) 82%, #fff 18%);
+      --dex-red: var(--color-accent);
+      --dex-red-deep: var(--color-accent-2);
+      --dex-gold: var(--color-accent);
       position: relative;
-      isolation: isolate;
       width: min(100% - 2 * var(--page-pad), var(--content-wide));
       margin: 0 auto;
       padding: clamp(2.5rem, 7vw, 5rem) 0 5rem;
-    }
-
-    .catchemall::before,
-    .catchemall::after {
-      position: absolute;
-      z-index: -1;
-      width: clamp(10rem, 28vw, 18rem);
-      aspect-ratio: 1;
-      border: 1px solid color-mix(in srgb, var(--dex-gold) 26%, transparent);
-      border-radius: 50%;
-      content: "";
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .catchemall::before {
-      top: 2.5rem;
-      right: -8rem;
-      background:
-        radial-gradient(
-          circle at center,
-          var(--color-surface) 0 17%,
-          transparent 18% 34%,
-          color-mix(in srgb, var(--dex-gold) 10%, transparent) 35% 36%,
-          transparent 37%
-        ),
-        linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--dex-red) 13%, transparent) 0 48%,
-          transparent 48% 52%,
-          color-mix(in srgb, var(--color-ink) 8%, transparent) 52%
-        );
-    }
-
-    .catchemall::after {
-      bottom: 8rem;
-      left: -10rem;
-      border-color: color-mix(in srgb, var(--dex-red) 20%, transparent);
-      background: radial-gradient(
-        circle,
-        transparent 0 54%,
-        color-mix(in srgb, var(--dex-red) 9%, transparent) 55% 56%,
-        transparent 57%
-      );
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme]) .catchemall {
-        --dex-red: #d6a452;
-        --dex-red-deep: #ab762f;
-        --dex-gold: #e8c47d;
-        --dex-paper: #28231e;
-      }
-    }
-
-    :root[data-theme="dark"] .catchemall {
-      --dex-red: #d6a452;
-      --dex-red-deep: #ab762f;
-      --dex-gold: #e8c47d;
-      --dex-paper: #28231e;
     }
 
     .catchemall__header {
@@ -524,42 +479,13 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       margin-bottom: 2rem;
     }
 
-    .catchemall__eyebrow,
-    .dex-card__game,
-    .dex-card__type,
-    .dex-card__percent {
-      margin: 0;
-      color: var(--color-muted);
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .catchemall__eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      color: var(--dex-red);
-      font-weight: 700;
-    }
-
-    .catchemall__eyebrow::before {
-      width: 0.65rem;
-      height: 0.65rem;
-      border: 2px solid currentColor;
-      border-radius: 50%;
-      box-shadow: inset 0 0 0 2px var(--color-surface);
-      content: "";
-    }
-
     .catchemall h1 {
-      margin: 0.35rem 0;
+      margin: 0 0 1rem;
       font-family: var(--font-display);
-      font-size: clamp(2.5rem, 8vw, 4.75rem);
+      font-size: clamp(2rem, 5vw, 2.75rem);
       font-weight: 600;
-      letter-spacing: -0.045em;
-      line-height: 1;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
     }
 
     .catchemall__header > p:last-child {
@@ -580,49 +506,6 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
     .dex-panel {
       display: grid;
       gap: 1.75rem;
-      padding: clamp(1.4rem, 4vw, 2.25rem);
-      border: 1px solid color-mix(in srgb, var(--dex-gold) 25%, var(--color-stroke));
-      border-radius: 1.25rem;
-      background:
-        linear-gradient(
-          135deg,
-          color-mix(in srgb, var(--dex-paper) 88%, transparent),
-          color-mix(in srgb, var(--color-surface-2) 78%, transparent)
-        ),
-        var(--dex-paper);
-      box-shadow: var(--shadow-lift);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme]) .dex-panel {
-        border-color: color-mix(in srgb, var(--dex-gold) 38%, transparent);
-        background: linear-gradient(145deg, #332d27, #24201c);
-        box-shadow: 0 1.5rem 3.5rem -2rem #000;
-      }
-
-      :root:not([data-theme]) .region-card {
-        border-color: color-mix(in srgb, var(--dex-gold) 22%, transparent);
-        background: #2a251f;
-      }
-
-      :root:not([data-theme]) .region-card[open] {
-        background: #211d19;
-      }
-    }
-
-    :root[data-theme="dark"] .dex-panel {
-      border-color: color-mix(in srgb, var(--dex-gold) 38%, transparent);
-      background: linear-gradient(145deg, #332d27, #24201c);
-      box-shadow: 0 1.5rem 3.5rem -2rem #000;
-    }
-
-    :root[data-theme="dark"] .region-card {
-      border-color: color-mix(in srgb, var(--dex-gold) 22%, transparent);
-      background: #2a251f;
-    }
-
-    :root[data-theme="dark"] .region-card[open] {
-      background: #211d19;
     }
 
     .collection-summary {
@@ -637,7 +520,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       gap: 0.45rem 0.75rem;
       padding: 0.85rem 0.95rem;
       border: 1px solid color-mix(in srgb, var(--color-stroke) 75%, transparent);
-      border-radius: 0.65rem;
+      border-radius: var(--radius);
       background: color-mix(in srgb, var(--color-ink) 3%, transparent);
     }
 
@@ -717,7 +600,7 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       display: grid;
       gap: 0.6rem;
       padding-top: 1.5rem;
-      border-top: 1px dashed color-mix(in srgb, var(--dex-gold) 38%, var(--color-stroke));
+      border-top: 1px solid var(--color-stroke);
     }
 
     .region-collection h3 {
@@ -733,8 +616,8 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
     }
 
     .region-card {
-      border: 1px solid color-mix(in srgb, var(--dex-gold) 20%, var(--color-stroke));
-      border-radius: 0.8rem;
+      border: 1px solid var(--color-stroke);
+      border-radius: var(--radius);
       background: color-mix(in srgb, var(--color-surface) 76%, transparent);
       transition:
         border-color 160ms ease,
@@ -882,30 +765,9 @@ const canonical = new URL("catchemall/", Astro.site ?? "https://vivekraman.dev")
       overflow: hidden;
       border: 1px solid color-mix(in srgb, var(--dex-gold) 58%, var(--color-stroke));
       border-radius: 0.45rem;
-      background:
-        linear-gradient(
-          135deg,
-          color-mix(in srgb, var(--dex-paper) 88%, var(--color-surface)),
-          color-mix(in srgb, var(--dex-gold) 9%, var(--color-surface))
-        ),
-        var(--dex-paper);
-      box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 62%, transparent),
-        inset 0 -0.25rem 0 color-mix(in srgb, var(--dex-gold) 11%, transparent);
+      background: var(--color-surface-2);
       font-size: 0.84rem;
       line-height: 1.25;
-    }
-
-    .region-card__pokemon-item::before {
-      position: absolute;
-      top: -1px;
-      left: 0.7rem;
-      z-index: 0;
-      width: 2.6rem;
-      height: 0.25rem;
-      border-radius: 0 0 0.2rem 0.2rem;
-      background: var(--dex-red);
-      content: "";
     }
 
     .region-card__pokemon-sprite {

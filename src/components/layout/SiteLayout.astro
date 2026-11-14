@@ -1,15 +1,11 @@
 ---
 import { ClientRouter } from "astro:transitions";
-// @ts-expect-error `fade` is exported from astro:transitions at build time; types resolve via dist/transitions.
-import { fade } from "astro:transitions";
 import "../../styles/index.css";
 import { THEME } from "../../config/theme";
 import PostHog from "../PostHog.astro";
 import ThemeInit from "../ThemeInit.astro";
 import SiteTopNav from "./SiteTopNav.astro";
 import SiteFooter from "./SiteFooter.astro";
-
-const pageTransition = fade({ duration: 400 });
 
 type BreadcrumbItem = { href?: string; label: string };
 
@@ -55,34 +51,33 @@ const fontPreloads: string[] = [
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    {
-      fontPreloads.map((href) => (
-        <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
-      ))
-    }
+    {fontPreloads.map((href) => (
+      <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+    ))}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content={THEME.colorDark} id="meta-theme-color" />
     <ThemeInit />
     <PostHog />
-    {
-      includeOpenGraph && (
-        <>
-          <meta property="og:title" content={pageTitle} />
-          <meta property="og:description" content={description} />
-          <meta property="og:type" content={ogType} />
-        </>
-      )
-    }
+    {includeOpenGraph && (
+      <>
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content={ogType} />
+      </>
+    )}
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <title>{pageTitle}</title>
     <ClientRouter />
+    <script>
+      import "../../scripts/page-transitions";
+    </script>
     <slot name="head" />
   </head>
   <body>
     <SiteTopNav siteName={siteName} breadcrumbs={breadcrumbs} />
     <div class="site-content-shell">
-      <div class={wrapperClass} transition:animate={pageTransition}>
+      <div class={wrapperClass} transition:name="site-page">
         <slot />
       </div>
     </div>
